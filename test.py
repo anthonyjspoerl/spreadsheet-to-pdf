@@ -1,4 +1,4 @@
-import time
+import os
 import win32com.client as win32
 
 RANGE = range(3, 8)
@@ -18,26 +18,21 @@ def excelToWord():
 def cleanup():
     ss.Close(False)
     excel.Application.Quit()
-    doc.SaveAs('test1')
+    doc.SaveAs( os.getcwd() + '/test' )
     doc.Close(False)
     word.Application.Quit()
 
 def openExcel():
-    """"""
     global excel, ss
     excel = win32.gencache.EnsureDispatch('Excel.Application')
-    ss = excel.Workbooks.Add()
+    #ss = excel.Workbooks.Add()
+    ss = excel.Workbooks.Open( os.getcwd() + '/test_sheet')
     sh = ss.ActiveSheet
 
-    excel.Visible = True
-    time.sleep(1)
+    excel.Visible = False
 
-    sh.Cells(1,1).Value = 'Hacking Excel with Python Demo'
-
-    time.sleep(1)
-    for i in range(2,8):
-        sh.Cells(i,1).Value = 'Line %i' % i
-        time.sleep(1)
+    #for i in range(2,8):
+    #    sh.Cells(i,1).Value = 'Line %i' % i
 
     return sh
 
@@ -46,16 +41,30 @@ def openWord(spreadsheet):
     word = win32.gencache.EnsureDispatch('Word.Application')
     doc = word.Documents.Add()
     word.Visible = True
-    time.sleep(1)
  
     rng = doc.Range(0,0)
-    rng.InsertAfter(spreadsheet.Cells(1,1).Value)
-    time.sleep(1)
-    for i in RANGE:
-        rng.InsertAfter('Line %d\r\n' % i)
-        time.sleep(1)
-    rng.InsertAfter("\r\nPython rules!\r\n")
- 
+
+    index = 2
+    val = spreadsheet.Cells(index,1).Value
+
+    sum = 0
+    product = 1
+    while val:
+        numVal = spreadsheet.Cells(index,2).Value
+        if(val == 'add this'):
+            sum += numVal
+        elif(val == 'multiply this'):
+            product = product * numVal
+
+        index += 1
+        val = spreadsheet.Cells(index,1).Value
+
+    rng.InsertAfter('sum: ')
+    rng.InsertAfter(sum)
+    rng.InsertAfter('\n')
+    rng.InsertAfter('product: ')
+    rng.InsertAfter(product)
+
 
 
 if __name__ == "__main__":
