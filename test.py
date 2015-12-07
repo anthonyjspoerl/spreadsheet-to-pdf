@@ -1,7 +1,10 @@
 import os
+import re
 import win32com.client as win32
 
 RANGE = range(3, 8)
+ADD_REGEX = re.compile('.*(add).*', re.IGNORECASE)
+MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
 
 excel = 0
 ss = 0
@@ -40,7 +43,7 @@ def openWord(spreadsheet):
     global word, doc
     word = win32.gencache.EnsureDispatch('Word.Application')
     doc = word.Documents.Add()
-    word.Visible = True
+    word.Visible = False
  
     rng = doc.Range(0,0)
 
@@ -51,9 +54,9 @@ def openWord(spreadsheet):
     product = 1
     while val:
         numVal = spreadsheet.Cells(index,2).Value
-        if(val == 'add this'):
+        if( ADD_REGEX.match(val) != None ):
             sum += numVal
-        elif(val == 'multiply this'):
+        elif( MULTIPLY_REGEX.match(val) != None ):
             product = product * numVal
 
         index += 1
