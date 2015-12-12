@@ -2,6 +2,7 @@ import os
 import re
 import win32com.client as win32
 
+TEMPLATE_PATH = os.getcwd() + '/templates/'
 RANGE = range(3, 8)
 ADD_REGEX = re.compile('.*(add).*', re.IGNORECASE)
 MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
@@ -15,7 +16,7 @@ doc = 0
 
 def excelToWord():
     spreadsheet = openExcel()
-    openWord(spreadsheet)
+    openWordTemplate(spreadsheet, 'Tribals.docx')
     cleanup()
 
 def cleanup():
@@ -28,7 +29,6 @@ def cleanup():
 def openExcel():
     global excel, ss
     excel = win32.gencache.EnsureDispatch('Excel.Application')
-    #ss = excel.Workbooks.Add()
     ss = excel.Workbooks.Open( os.getcwd() + '/test_sheet')
     sh = ss.ActiveSheet
 
@@ -39,10 +39,10 @@ def openExcel():
 
     return sh
 
-def openWord(spreadsheet):
+def openWordTemplate(spreadsheet, templateName):
     global word, doc
     word = win32.gencache.EnsureDispatch('Word.Application')
-    doc = word.Documents.Add()
+    doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     word.Visible = False
  
     rng = doc.Range(0,0)
