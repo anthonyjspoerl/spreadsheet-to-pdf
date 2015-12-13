@@ -9,8 +9,11 @@ MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
 
 excel = 0
 ss = 0
-word = 0
+word = win32.gencache.EnsureDispatch('Word.Application')
 doc = 0
+
+# This will contain all enums/module constants from coms bound with EnsureDispatch
+COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
 
@@ -22,7 +25,8 @@ def excelToWord():
 def cleanup():
     ss.Close(False)
     excel.Application.Quit()
-    doc.SaveAs( os.getcwd() + '/test' )
+    doc.SaveAs( os.getcwd() + '/test.docx' )
+    doc.ExportAsFixedFormat(os.getcwd() + '/test.pdf', COM_CONSTANTS.wdExportFormatPDF)
     doc.Close(False)
     word.Application.Quit()
 
@@ -41,7 +45,6 @@ def openExcel():
 
 def openWordTemplate(spreadsheet, templateName):
     global word, doc
-    word = win32.gencache.EnsureDispatch('Word.Application')
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     word.Visible = False
  
@@ -71,4 +74,5 @@ def openWordTemplate(spreadsheet, templateName):
 
 
 if __name__ == "__main__":
+    print()
     excelToWord()
