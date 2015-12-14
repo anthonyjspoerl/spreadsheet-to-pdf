@@ -48,6 +48,7 @@ def openExcel():
 def openWordTemplate(spreadsheet, templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
+    selection = word.Selection
     word.Visible = False
  
     rng = doc.Range(0,0)
@@ -67,13 +68,8 @@ def openWordTemplate(spreadsheet, templateName):
         index += 1
         val = spreadsheet.Cells(index,1).Value
 
-    rng.InsertAfter('sum: ')
-    rng.InsertAfter(sum)
-    rng.InsertAfter('\n')
-    rng.InsertAfter('product: ')
-    rng.InsertAfter(product)
-
-
+    selection.Find.Execute('%amount%')
+    selection.Text = sum
 
 if __name__ == "__main__":
     excelToWord()
