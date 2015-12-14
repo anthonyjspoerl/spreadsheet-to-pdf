@@ -1,6 +1,8 @@
 import os
 import re
 import win32com.client as win32
+from tkinter import *
+import tkinter.simpledialog as simpledialog
 
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 RANGE = range(3, 8)
@@ -78,6 +80,20 @@ def fillWithWhitespace(str, expectedSize):
         return str
     else:
         return (' ' * difference) + str
+
+def test():
+    def printContents():
+        print ( textwidget.get() )
+
+    window = Tk()
+    textwidget = Entry(window, width = 20)
+    textwidget.pack()
+    buttonwidget = Button(window, text = "Button", command = printContents)
+    buttonwidget.pack()
+    exitbuttonwidget = Button(window, text = "Exit", command = window.quit, bg = "red")
+    exitbuttonwidget.pack()
+    window.mainloop()
+
 
 if __name__ == "__main__":
     excelToWord()
