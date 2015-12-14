@@ -69,7 +69,15 @@ def openWordTemplate(spreadsheet, templateName):
         val = spreadsheet.Cells(index,1).Value
 
     selection.Find.Execute('%amount%')
-    selection.Text = sum
+    selection.Text = fillWithWhitespace(str(sum), len(selection.Text))
+
+def fillWithWhitespace(str, expectedSize):
+    #TODO This will need to use the largest amount (num of digits) as expected
+    difference = expectedSize - len(str)
+    if(difference <= 0):
+        return str
+    else:
+        return (' ' * difference) + str
 
 if __name__ == "__main__":
     excelToWord()
