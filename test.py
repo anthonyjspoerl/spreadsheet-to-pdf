@@ -2,7 +2,6 @@ import os
 import re
 import win32com.client as win32
 from tkinter import *
-import tkinter.simpledialog as simpledialog
 
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 RANGE = range(3, 8)
@@ -19,10 +18,10 @@ COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
 
-def excelToWord():
+def excelToWord(invoiceNum):
     setup()
     spreadsheet = openExcel()
-    openWordTemplate(spreadsheet, 'Tribals.docx')
+    openWordTemplate(spreadsheet, 'Tribals.docx', invoiceNum)
     cleanup()
 
 def setup():
@@ -47,7 +46,7 @@ def openExcel():
 
     return sh
 
-def openWordTemplate(spreadsheet, templateName):
+def openWordTemplate(spreadsheet, templateName, invoiceNum):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     selection = word.Selection
@@ -70,7 +69,10 @@ def openWordTemplate(spreadsheet, templateName):
         index += 1
         val = spreadsheet.Cells(index,1).Value
 
-    selection.Find.Execute('%amount%')
+    selection.Find.Execute('_invoice_num_')#, ReplaceWith = invoiceNum, Replace = True)
+    selection.Text = invoiceNum
+    selection.WholeStory()
+    selection.Find.Execute('_amount_')
     selection.Text = fillWithWhitespace(str(sum), len(selection.Text))
 
 def fillWithWhitespace(str, expectedSize):
@@ -81,19 +83,22 @@ def fillWithWhitespace(str, expectedSize):
     else:
         return (' ' * difference) + str
 
-def test():
-    def printContents():
-        print ( textwidget.get() )
+def getInputs():
+    def submit():
+        excelToWord( invoiceEntry.get() )
+        window.quit()
 
     window = Tk()
-    textwidget = Entry(window, width = 20)
-    textwidget.pack()
-    buttonwidget = Button(window, text = "Button", command = printContents)
-    buttonwidget.pack()
-    exitbuttonwidget = Button(window, text = "Exit", command = window.quit, bg = "red")
-    exitbuttonwidget.pack()
+    invoiceLabel = Label(window, text = 'Invoice #:')
+    invoiceLabel.pack()
+    invoiceEntry = Entry(window, width = 20)
+    invoiceEntry.pack()
+    submitButton = Button(window, text = "Submit", command = submit)
+    submitButton.pack()
+    exitButtonWidget = Button(window, text = "Exit", command = window.quit, bg = "red")
+    exitButtonWidget.pack()
     window.mainloop()
 
 
 if __name__ == "__main__":
-    excelToWord()
+    getInputs()
