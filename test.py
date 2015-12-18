@@ -18,15 +18,16 @@ COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
 
-def excelToWord(invoiceNum):
+def excelToWord(invoiceNum, subdivision, referenceNum, mps, location, county, state):
     try:
         setup()
         spreadsheet = openExcel()
-        openWordTemplate(spreadsheet, 'Tribals.docx', invoiceNum)
+        testSum = openWordTemplate(spreadsheet, 'Tribals.docx')
+        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum)
         saveDocs('test')
         cleanup()
-    except:
-        print('Encountered an error: %s', sys.exc_info()[0])
+    except Exception as e:
+        print('Encountered an error: ', e)
         cleanup()
 
 def setup():
@@ -53,10 +54,9 @@ def openExcel():
 
     return sh
 
-def openWordTemplate(spreadsheet, templateName, invoiceNum):
+def openWordTemplate(spreadsheet, templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
-    selection = word.Selection
     word.Visible = False
  
     rng = doc.Range(0,0)
@@ -64,25 +64,53 @@ def openWordTemplate(spreadsheet, templateName, invoiceNum):
     index = 2
     val = spreadsheet.Cells(index,1).Value
 
-    sum = 0
+    testSum = 0
     product = 1
     while val:
         numVal = spreadsheet.Cells(index,2).Value
         if( ADD_REGEX.match(val) != None ):
-            sum += numVal
-        elif( MULTIPLY_REGEX.match(val) != None ):
-            product = product * numVal
+            testSum += numVal
 
         index += 1
         val = spreadsheet.Cells(index,1).Value
 
+    return testSum
+        
+
+def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum):
+    selection = word.Selection
+
     selection.Find.Execute('_invoice_num_')
     selection.Text = invoiceNum
     selection.WholeStory()
+
+    selection.Find.Execute('_subdivision_')
+    selection.Text = subdivision
+    selection.WholeStory()
+
+    selection.Find.Execute('_reference_num_')
+    selection.Text = referenceNum
+    selection.WholeStory()
+
+    selection.Find.Execute('_mps_')
+    selection.Text = mps
+    selection.WholeStory()
+
+    selection.Find.Execute('_location_')
+    selection.Text = location
+    selection.WholeStory()
+
+    selection.Find.Execute('_county_')
+    selection.Text = county
+    selection.WholeStory()
+
+    selection.Find.Execute('_state_')
+    selection.Text = state
+    selection.WholeStory()
+
     selection.Find.Execute('_amount_')
-    selection.Text = fillWithWhitespace(str(sum), len(selection.Text))
-
-
+    selection.Text = fillWithWhitespace(str(testSum), len(selection.Text))
+    
 
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
