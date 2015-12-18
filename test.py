@@ -19,21 +19,28 @@ COM_CONSTANTS = win32.constants
 #----------------------------------------------------------------------
 
 def excelToWord(invoiceNum):
-    setup()
-    spreadsheet = openExcel()
-    openWordTemplate(spreadsheet, 'Tribals.docx', invoiceNum)
-    cleanup()
+    try:
+        setup()
+        spreadsheet = openExcel()
+        openWordTemplate(spreadsheet, 'Tribals.docx', invoiceNum)
+        saveDocs('test')
+        cleanup()
+    except:
+        print('Encountered an error: %s', sys.exc_info()[0])
+        cleanup()
 
 def setup():
     global word, excel
     word = win32.gencache.EnsureDispatch('Word.Application')
     excel = win32.gencache.EnsureDispatch('Excel.Application')
 
+def saveDocs(filename):
+    doc.SaveAs( os.getcwd() + '/' + filename )
+    doc.ExportAsFixedFormat(os.getcwd() + '/' + filename, COM_CONSTANTS.wdExportFormatPDF)
+
 def cleanup():
     ss.Close(False)
     excel.Application.Quit()
-    doc.SaveAs( os.getcwd() + '/test.docx' )
-    doc.ExportAsFixedFormat(os.getcwd() + '/test.pdf', COM_CONSTANTS.wdExportFormatPDF)
     doc.Close(False)
     word.Application.Quit()
 
@@ -69,7 +76,7 @@ def openWordTemplate(spreadsheet, templateName, invoiceNum):
         index += 1
         val = spreadsheet.Cells(index,1).Value
 
-    selection.Find.Execute('_invoice_num_')#, ReplaceWith = invoiceNum, Replace = True)
+    selection.Find.Execute('_invoice_num_')
     selection.Text = invoiceNum
     selection.WholeStory()
     selection.Find.Execute('_amount_')
