@@ -96,14 +96,50 @@ def getInputs():
         window.quit()
 
     window = Tk()
-    invoiceLabel = Label(window, text = 'Invoice #:')
-    invoiceLabel.pack()
+    
+    titleLabel = Label(window, text = "Enter data: ", font = "-weight bold")
+    titleLabel.grid(row = 0, column = 0)
+
+    invoiceLabel = Label(window, text = "Invoice #: ")
+    invoiceLabel.grid(row = 1, column = 0, pady = 10)
     invoiceEntry = Entry(window, width = 20)
-    invoiceEntry.pack()
+    invoiceEntry.grid(row = 1, column = 1)
+
+    subdivisionLabel = Label(window, text = "Subdivision: ")
+    subdivisionLabel.grid(row = 2, column = 0, pady = 10)
+    subdivisionEntry = Entry(window, width = 20)
+    subdivisionEntry.grid(row = 2, column = 1)
+    
+    referenceLabel = Label(window, text = "Reference #: ")
+    referenceLabel.grid(row = 3, column = 0, pady = 10)
+    referenceEntry = Entry(window, width = 20)
+    referenceEntry.grid(row = 3, column = 1)
+    
+    mpLabel = Label(window, text = "MP(s): ")
+    mpLabel.grid(row = 4, column = 0, pady = 10)
+    mpEntry = Entry(window, width = 20)
+    mpEntry.grid(row = 4, column = 1)
+    
+    locationLabel = Label(window, text = "Location (site): ")
+    locationLabel.grid(row = 5, column = 0, pady = 10)
+    locationEntry = Entry(window, width = 20)
+    locationEntry.grid(row = 5, column = 1)
+
+    countyLabel = Label(window, text = "County : ")
+    countyLabel.grid(row = 5, column = 2, pady = 10)
+    countyEntry = Entry(window, width = 20)
+    countyEntry.grid(row = 5, column = 3)
+
+    stateLabel = Label(window, text = "State : ")
+    stateLabel.grid(row = 5, column = 4, pady = 10)
+    stateEntry = Entry(window, width = 5)
+    stateEntry.grid(row = 5, column = 5)
+    
     submitButton = Button(window, text = "Submit", command = submit)
-    submitButton.pack()
+    submitButton.grid(row = 8, column = 4, sticky = S, pady = 10)
     exitButtonWidget = Button(window, text = "Exit", command = window.quit, bg = "red")
-    exitButtonWidget.pack()
+    exitButtonWidget.grid(row = 8, column = 5, sticky = E, columnspan = 2, pady = 10, padx = 10)
+    
     window.mainloop()
 
 
