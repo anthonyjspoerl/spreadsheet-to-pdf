@@ -9,6 +9,7 @@ TEMPLATE_PATH = os.getcwd() + '/templates/'
 RANGE = range(3, 8)
 ADD_REGEX = re.compile('.*(add).*', re.IGNORECASE)
 MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
+INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
 excel = 0
 ss = 0
@@ -125,7 +126,7 @@ def fillWithWhitespace(str, expectedSize):
 
 def getInputs():
     def getSpreadsheetName():
-        filename = filedialog.askopenfilename()
+        filename = filedialog.askopenfilename(defaultextension = '.xlsx', filetypes = INPUT_FILETYPES)
         if(filename != ''):
             fileEntry.delete(0, END)
             fileEntry.insert(0, filename)
