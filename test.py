@@ -82,6 +82,8 @@ def openWordTemplate(spreadsheet, templateName, invoiceNum):
     selection.Find.Execute('_amount_')
     selection.Text = fillWithWhitespace(str(sum), len(selection.Text))
 
+
+
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
     difference = expectedSize - len(str)
@@ -92,7 +94,7 @@ def fillWithWhitespace(str, expectedSize):
 
 def getInputs():
     def submit():
-        excelToWord( invoiceEntry.get() )
+        excelToWord( invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
         window.quit()
 
     window = Tk()
@@ -123,12 +125,12 @@ def getInputs():
     locationLabel = Label(window, text = "Location (site): ")
     locationLabel.grid(row = 5, column = 0, pady = 10)
     locationEntry = Entry(window, width = 20)
-    locationEntry.grid(row = 5, column = 1)
+    locationEntry.grid(row = 5, column = 1, padx = (0,10))
 
     countyLabel = Label(window, text = "County : ")
     countyLabel.grid(row = 5, column = 2, pady = 10)
     countyEntry = Entry(window, width = 20)
-    countyEntry.grid(row = 5, column = 3)
+    countyEntry.grid(row = 5, column = 3, padx = (0,10))
 
     stateLabel = Label(window, text = "State : ")
     stateLabel.grid(row = 5, column = 4, pady = 10)
