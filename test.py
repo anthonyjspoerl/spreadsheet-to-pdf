@@ -132,8 +132,8 @@ def getInputs():
             fileEntry.insert(0, filename)
             fileEntry.xview_moveto(1)
 
-    def submit():
-        excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
+    def submit(event):
+       excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
         window.quit()
 
     window = Tk()
@@ -144,6 +144,8 @@ def getInputs():
 
     titleLabel = Label(fileFrame, text = "Enter data: ", font = "-weight bold")
     titleLabel.grid(row = 0, column = 0)
+
+    window.bind("<Return>", submit)
 
     fileLabel = Label(fileFrame, text = "Spreadsheet: ")
     fileLabel.grid(row = 1, column = 0, pady = 10, sticky = W)
