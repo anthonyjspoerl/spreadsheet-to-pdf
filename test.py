@@ -11,6 +11,12 @@ ADD_REGEX = re.compile('.*(add).*', re.IGNORECASE)
 MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
+# Tribe list consts
+TRIBE_LIST_FILE = 'TribeList.xlsx'
+SAGE_TRIBE_COLUMN = 0
+GSS_TRIBE_COLUMN = 1
+FEE_COLUMN = 3
+
 excel = 0
 ss = 0
 word = 0
@@ -25,9 +31,7 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     try:
         setup()
         spreadsheet = openExcel(spreadsheetName)
-        testSum = openWordTemplate(spreadsheet, 'Tribals.docx')
-        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum)
-        saveDocs('test')
+        saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
         cleanup()
     except Exception as e:
         print('Encountered an error: ', e)
@@ -38,7 +42,12 @@ def setup():
     word = win32.gencache.EnsureDispatch('Word.Application')
     excel = win32.gencache.EnsureDispatch('Excel.Application')
 
-def saveDocs(filename):
+def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state):
+    testSum = openWordTemplate(spreadsheet, 'Tribals.docx')
+    replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum)
+    saveDoc('Tribals_out')
+
+def saveDoc(filename):
     doc.SaveAs( os.getcwd() + '/' + filename )
     doc.ExportAsFixedFormat(os.getcwd() + '/' + filename, COM_CONSTANTS.wdExportFormatPDF)
 
@@ -79,7 +88,6 @@ def openWordTemplate(spreadsheet, templateName):
 
     return testSum
         
-
 def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum):
     selection = word.Selection
 
@@ -113,7 +121,6 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
 
     selection.Find.Execute('_amount_')
     selection.Text = fillWithWhitespace(str(testSum), len(selection.Text))
-    
 
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
@@ -122,7 +129,6 @@ def fillWithWhitespace(str, expectedSize):
         return str
     else:
         return (' ' * difference) + str
-
 
 def getInputs():
     def getSpreadsheetName():
@@ -201,3 +207,6 @@ def getInputs():
 
 if __name__ == "__main__":
     getInputs()
+
+#GSS Admin Fee: # of tribes * 40
+#Sante Sioux: markup %15 of cost
