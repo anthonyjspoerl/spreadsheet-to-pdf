@@ -11,6 +11,12 @@ ADD_REGEX = re.compile('.*(add).*', re.IGNORECASE)
 MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
+# Tribe list consts
+TRIBE_LIST_FILE = 'TribeList.xlsx'
+SAGE_TRIBE_COLUMN = 0
+GSS_TRIBE_COLUMN = 1
+FEE_COLUMN = 3
+
 excel = 0
 ss = 0
 word = 0
@@ -82,7 +88,6 @@ def openWordTemplate(spreadsheet, templateName):
 
     return testSum
         
-
 def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum):
     selection = word.Selection
 
@@ -116,7 +121,6 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
 
     selection.Find.Execute('_amount_')
     selection.Text = fillWithWhitespace(str(testSum), len(selection.Text))
-    
 
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
