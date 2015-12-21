@@ -93,7 +93,7 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
         selection.Find.Execute(searchTerm)
         selection.Text = replacement
         selection.WholeStory()
-    
+
     selection = word.Selection
 
     findAndReplace('_invoice_num_', invoiceNum)
@@ -123,7 +123,7 @@ def getInputs():
             fileEntry.insert(0, filename)
             fileEntry.xview_moveto(1)
 
-    def submit(event):
+    def submit(event = None):
         excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
         window.quit()
 
