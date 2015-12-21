@@ -89,35 +89,20 @@ def openWordTemplate(spreadsheet, templateName):
     return testSum
         
 def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum):
+    def findAndReplace(searchTerm, replacement):
+        selection.Find.Execute(searchTerm)
+        selection.Text = replacement
+        selection.WholeStory()
+    
     selection = word.Selection
 
-    selection.Find.Execute('_invoice_num_')
-    selection.Text = invoiceNum
-    selection.WholeStory()
-
-    selection.Find.Execute('_subdivision_')
-    selection.Text = subdivision
-    selection.WholeStory()
-
-    selection.Find.Execute('_reference_num_')
-    selection.Text = referenceNum
-    selection.WholeStory()
-
-    selection.Find.Execute('_mps_')
-    selection.Text = mps
-    selection.WholeStory()
-
-    selection.Find.Execute('_location_')
-    selection.Text = location
-    selection.WholeStory()
-
-    selection.Find.Execute('_county_')
-    selection.Text = county
-    selection.WholeStory()
-
-    selection.Find.Execute('_state_')
-    selection.Text = state
-    selection.WholeStory()
+    findAndReplace('_invoice_num_', invoiceNum)
+    findAndReplace('_subdivision_', subdivision)
+    findAndReplace('_reference_num_', referenceNum)
+    findAndReplace('_mps_', mps)
+    findAndReplace('_location_', location)
+    findAndReplace('_county_', county)
+    findAndReplace('_state_', state)
 
     selection.Find.Execute('_amount_')
     selection.Text = fillWithWhitespace(str(testSum), len(selection.Text))
@@ -139,7 +124,7 @@ def getInputs():
             fileEntry.xview_moveto(1)
 
     def submit(event):
-       excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
+        excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
         window.quit()
 
     window = Tk()
