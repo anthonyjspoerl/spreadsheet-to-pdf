@@ -25,9 +25,7 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     try:
         setup()
         spreadsheet = openExcel(spreadsheetName)
-        testSum = openWordTemplate(spreadsheet, 'Tribals.docx')
-        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum)
-        saveDocs('test')
+        saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
         cleanup()
     except Exception as e:
         print('Encountered an error: ', e)
@@ -38,7 +36,12 @@ def setup():
     word = win32.gencache.EnsureDispatch('Word.Application')
     excel = win32.gencache.EnsureDispatch('Excel.Application')
 
-def saveDocs(filename):
+def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state):
+    testSum = openWordTemplate(spreadsheet, 'Tribals.docx')
+    replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum)
+    saveDoc('Tribals_out')
+
+def saveDoc(filename):
     doc.SaveAs( os.getcwd() + '/' + filename )
     doc.ExportAsFixedFormat(os.getcwd() + '/' + filename, COM_CONSTANTS.wdExportFormatPDF)
 
@@ -123,7 +126,6 @@ def fillWithWhitespace(str, expectedSize):
     else:
         return (' ' * difference) + str
 
-
 def getInputs():
     def getSpreadsheetName():
         filename = filedialog.askopenfilename(defaultextension = '.xlsx', filetypes = INPUT_FILETYPES)
@@ -199,3 +201,6 @@ def getInputs():
 
 if __name__ == "__main__":
     getInputs()
+
+#GSS Admin Fee: # of tribes * 40
+#Sante Sioux: markup %15 of cost
