@@ -35,7 +35,7 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
         saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
         cleanup()
     except Exception as e:
-        messagebox.showerror("Error", e)
+        messagebox.showerror("Error", str(e))
         cleanup()
 
 def setup():
@@ -53,10 +53,14 @@ def saveDoc(filename):
     doc.ExportAsFixedFormat(os.getcwd() + '/' + filename, COM_CONSTANTS.wdExportFormatPDF)
 
 def cleanup():
-    ss.Close(False)
-    excel.Application.Quit()
-    doc.Close(False)
-    word.Application.Quit()
+    if(ss != 0):
+        ss.Close(False)
+    if(excel != 0):
+        excel.Application.Quit()
+    if(doc != 0):
+        doc.Close(False)
+    if(word != 0):
+        word.Application.Quit()
 
 def openExcel(spreadsheetName):
     global excel, ss
