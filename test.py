@@ -12,7 +12,7 @@ MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
 # Tribe list consts
-TRIBE_LIST_FILE = 'TribeList.xlsx'
+TRIBE_LIST_FILE = TEMPLATE_PATH + 'TribeList.xlsx'
 SAGE_TRIBE_COLUMN = 0
 GSS_TRIBE_COLUMN = 1
 FEE_COLUMN = 3
