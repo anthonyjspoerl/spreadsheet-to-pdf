@@ -2,6 +2,7 @@ import os
 import re
 import win32com.client as win32
 from tkinter import *
+from tkinter import messagebox
 from tkinter import filedialog
 
 APPLICATION_NAME = 'Spreadsheet Too PDF'
@@ -34,7 +35,7 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
         saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
         cleanup()
     except Exception as e:
-        print('Encountered an error: ', e)
+        messagebox.showerror("Error", e)
         cleanup()
 
 def setup():
@@ -195,3 +196,4 @@ if __name__ == "__main__":
 
 #GSS Admin Fee: # of tribes * 40
 #Sante Sioux: markup %15 of cost
+#Eat My Shorts
