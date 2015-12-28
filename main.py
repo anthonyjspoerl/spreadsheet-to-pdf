@@ -14,10 +14,13 @@ INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
 # Tribe list consts
 TRIBE_LIST_FILE = TEMPLATE_PATH + 'TribeList.xlsx'
-SAGE_TRIBE_COLUMN = 0
-GSS_TRIBE_COLUMN = 1
-FEE_COLUMN = 3
+LIST_START_INDEX = 4
+LIST_END = 'END'
+SAGE_TRIBE_COLUMN = 1
+GSS_TRIBE_COLUMN = 2
+FEE_COLUMN = 4
 
+TRIBAL_FEE_DICTIONARY = {}
 excel = 0
 ss = 0
 word = 0
@@ -28,12 +31,28 @@ COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
 
+def setupTribalsDictionary():
+    spreadsheet = openExcel(TRIBE_LIST_FILE)
+    loadFees(spreadsheet)
+    closeExcel()
+
+def loadFees(spreadsheet):
+    global TRIBAL_FEE_DICTIONARY
+    sageTribe = ''
+    index = LIST_START_INDEX
+    while sageTribe != LIST_END:
+        sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
+        if(sageTribe != None and sageTribe.strip() != ''):
+            tribe = spreadsheet.Cells(index, GSS_TRIBE_COLUMN).Value
+            fee = spreadsheet.Cells(index, FEE_COLUMN).Value
+            TRIBAL_FEE_DICTIONARY[sageTribe] = [tribe, fee]
+        index += 1
+    # Could fail if there is no 'END' signifier, maybe add a timeout to be sure
+
 def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     try:
-        setup()
         spreadsheet = openExcel(spreadsheetName)
         saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
-        cleanup()
     except Exception as e:
         messagebox.showerror("Error", str(e))
         cleanup()
@@ -53,10 +72,7 @@ def saveDoc(filename):
     doc.ExportAsFixedFormat(os.getcwd() + '/' + filename, COM_CONSTANTS.wdExportFormatPDF)
 
 def cleanup():
-    if(ss != 0):
-        ss.Close(False)
-    if(excel != 0):
-        excel.Application.Quit()
+    closeExcel()
     if(doc != 0):
         doc.Close(False)
     if(word != 0):
@@ -68,8 +84,13 @@ def openExcel(spreadsheetName):
     sh = ss.ActiveSheet
 
     excel.Visible = False
-
     return sh
+
+def closeExcel():
+    if(ss != 0):
+        ss.Close(False)
+    if(excel != 0):
+        excel.Application.Quit()
 
 def openWordTemplate(spreadsheet, templateName):
     global word, doc
@@ -196,8 +217,11 @@ def getInputs():
 
 
 if __name__ == "__main__":
+    setup()
+    setupTribalsDictionary()
     getInputs()
+    cleanup()
 
 #GSS Admin Fee: # of tribes * 40
 #Sante Sioux: markup %15 of cost
-#Eat My Shorts
+#Ponca Tribe: PTC vs Non PTC (special case)
