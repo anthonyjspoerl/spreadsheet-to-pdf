@@ -101,13 +101,6 @@ def openWordTemplate(spreadsheet, templateName):
 
         
 def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state):
-    def findAndReplace(searchTerm, replacement):
-        selection.Find.Execute(searchTerm)
-        selection.Text = replacement
-        selection.WholeStory()
-
-    selection = word.Selection
-
     findAndReplace('_invoice_num_', invoiceNum)
     findAndReplace('_subdivision_', subdivision)
     findAndReplace('_reference_num_', referenceNum)
@@ -128,19 +121,11 @@ def getTribesInSpreadsheet(spreadsheet):
 
     return tribes
 
-def insertTribalFees(tribes):
-    selection = word.Selection
-        
+def insertTribalFees(tribes):        
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
-            selection.Find.Execute('_tribe_')
-            selection.Text = TRIBAL_FEE_DICTIONARY[tribe][0]
-            selection.WholeStory()
-
-            selection.Find.Execute('_amount_')
-            selection.Text = TRIBAL_FEE_DICTIONARY[tribe][1]
-            selection.WholeStory()
-
+            findAndReplace('_tribe_', TRIBAL_FEE_DICTIONARY[tribe][0])
+            findAndReplace('_amount_', TRIBAL_FEE_DICTIONARY[tribe][1])
 
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
@@ -149,6 +134,13 @@ def fillWithWhitespace(str, expectedSize):
         return str
     else:
         return (' ' * difference) + str
+
+def findAndReplace(searchTerm, replacement):
+    selection = word.Selection
+
+    selection.Find.Execute(searchTerm)
+    selection.Text = replacement
+    selection.WholeStory()
 
 def getInputs():
     def getSpreadsheetName():
