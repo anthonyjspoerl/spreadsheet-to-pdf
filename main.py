@@ -63,8 +63,10 @@ def setup():
     excel = win32.gencache.EnsureDispatch('Excel.Application')
 
 def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state):
-    testSum = openWordTemplate(spreadsheet, 'Tribals.docx')
-    replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum)
+    openWordTemplate(spreadsheet, 'Tribals.docx')
+    replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
+    tribes = getTribesInSpreadsheet(spreadsheet)
+    insertTribalFees(tribes)
     saveDoc('Tribals_out')
 
 def saveDoc(filename):
@@ -96,25 +98,9 @@ def openWordTemplate(spreadsheet, templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     word.Visible = False
- 
-    rng = doc.Range(0,0)
 
-    index = 2
-    val = spreadsheet.Cells(index,1).Value
-
-    testSum = 0
-    product = 1
-    while val:
-        numVal = spreadsheet.Cells(index,2).Value
-        if( ADD_REGEX.match(val) != None ):
-            testSum += numVal
-
-        index += 1
-        val = spreadsheet.Cells(index,1).Value
-
-    return testSum
         
-def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, testSum):
+def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state):
     def findAndReplace(searchTerm, replacement):
         selection.Find.Execute(searchTerm)
         selection.Text = replacement
@@ -130,8 +116,31 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
 
-    selection.Find.Execute('_amount_')
-    selection.Text = fillWithWhitespace(str(testSum), len(selection.Text))
+def getTribesInSpreadsheet(spreadsheet):
+    index = 2
+    tribes = []
+    tribe = spreadsheet.Cells(index,1).Value
+
+    while tribe:
+        tribes.append(tribe)
+        index += 1
+        tribe = spreadsheet.Cells(index,1).Value
+
+    return tribes
+
+def insertTribalFees(tribes):
+    selection = word.Selection
+        
+    for tribe in tribes:
+        if tribe in TRIBAL_FEE_DICTIONARY:
+            selection.Find.Execute('_tribe_')
+            selection.Text = TRIBAL_FEE_DICTIONARY[tribe][0]
+            selection.WholeStory()
+
+            selection.Find.Execute('_amount_')
+            selection.Text = TRIBAL_FEE_DICTIONARY[tribe][1]
+            selection.WholeStory()
+
 
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
