@@ -9,6 +9,8 @@ APPLICATION_NAME = 'Spreadsheet Too PDF'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
+PER_TRIBE_GSS_FEE = 40
+
 # Tribe list consts
 TRIBE_LIST_FILE = TEMPLATE_PATH + 'TribeList.xlsx'
 LIST_START_INDEX = 4
@@ -118,7 +120,7 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
 
     while delimeter != SAGE_END_DELIMETER:
-        if description:
+        if description and description not in descriptions:
             descriptions.append(description)
         
         index += 1
@@ -141,6 +143,7 @@ def insertTribalFees(tribes):
         if tribe in TRIBAL_FEE_DICTIONARY:
             findAndReplace('_tribe_', TRIBAL_FEE_DICTIONARY[tribe][0])
             findAndReplace('_amount_', TRIBAL_FEE_DICTIONARY[tribe][1])
+    findAndReplace('_admin_fee_', len(tribes) * PER_TRIBE_GSS_FEE)
 
 def setCopyText(numTribes):
     selection = word.Selection
