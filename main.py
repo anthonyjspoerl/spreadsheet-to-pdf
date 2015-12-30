@@ -120,7 +120,7 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
 
     while delimeter != SAGE_END_DELIMETER:
-        if description and description not in descriptions:
+        if description:
             descriptions.append(description)
         
         index += 1
@@ -130,20 +130,36 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     return descriptions
 
 def filterTribes(descriptions):
-    tribes = []
+    tribes = {}
     for index in range(0, len(descriptions)):
         tribe = descriptions[index].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
-            tribes.append(tribe)
+            if tribe in tribes:
+                tribes[tribe] += 1
+            else:
+                tribes[tribe] = 1
     return tribes
 
 def insertTribalFees(tribes):
     setCopyText(len(tribes))
+
+    tribeCount = 0
+    total = 0
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
-            findAndReplace('_tribe_', TRIBAL_FEE_DICTIONARY[tribe][0])
-            findAndReplace('_amount_', TRIBAL_FEE_DICTIONARY[tribe][1])
-    findAndReplace('_admin_fee_', len(tribes) * PER_TRIBE_GSS_FEE)
+            tribeName = TRIBAL_FEE_DICTIONARY[tribe][0]
+            fee = TRIBAL_FEE_DICTIONARY[tribe][1]
+
+            tribeCount += tribes[tribe]
+            total += fee
+
+            findAndReplace('_tribe_', tribeName)
+            findAndReplace('_amount_', fee)
+
+    adminFee = tribeCount * PER_TRIBE_GSS_FEE
+    findAndReplace('_admin_fee_', adminFee)
+    total += adminFee
+    findAndReplace('_total_',total)
 
 def setCopyText(numTribes):
     selection = word.Selection
@@ -251,6 +267,5 @@ if __name__ == "__main__":
     getInputs()
     cleanup()
 
-#GSS Admin Fee: # of tribes * 40
 #Sante Sioux: markup %15 of cost
 #Ponca Tribe: PTC vs Non PTC (special case) ## use PTC by default
