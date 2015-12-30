@@ -10,6 +10,7 @@ TEMPLATE_PATH = os.getcwd() + '/templates/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
 PER_TRIBE_GSS_FEE = 40
+TCNS_REGEX = re.compile('.*(TCNS).*', re.IGNORECASE)
 
 # Tribe list consts
 TRIBE_LIST_FILE = TEMPLATE_PATH + 'TribeList.xlsx'
@@ -22,6 +23,7 @@ FEE_COLUMN = 4
 # Sage spreadsheet consts
 JOB_COLUMN = 1
 DESCRIPION_COLUMN = 7
+TCNS_COLUMN = 8
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
@@ -114,6 +116,7 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_state_', state)
 
 def getDescriptionsInSpreadsheet(spreadsheet):
+    tcnsNumber = ''
     index = 2
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
     descriptions = []
@@ -126,7 +129,11 @@ def getDescriptionsInSpreadsheet(spreadsheet):
         index += 1
         description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
         delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
+        tempTcns = spreadsheet.Cells(index,TCNS_COLUMN).Value
+        if tempTcns != None and tcnsNumber == '' and TCNS_REGEX.match(tempTcns) != None:
+            tcnsNumber = tempTcns
 
+    findAndReplace('_trans_ref_num_', tcnsNumber)
     return descriptions
 
 def filterTribes(descriptions):
