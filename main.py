@@ -17,6 +17,11 @@ SAGE_TRIBE_COLUMN = 1
 GSS_TRIBE_COLUMN = 2
 FEE_COLUMN = 4
 
+# Sage spreadsheet consts
+JOB_COLUMN = 1
+DESCRIPION_COLUMN = 7
+SAGE_END_DELIMETER = 'Report'
+
 TRIBAL_FEE_DICTIONARY = {}
 excel = 0
 ss = 0
@@ -108,13 +113,17 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
 
 def getDescriptionsInSpreadsheet(spreadsheet):
     index = 2
+    delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
     descriptions = []
-    description = spreadsheet.Cells(index,1).Value
+    description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
 
-    while description:
-        descriptions.append(description)
+    while delimeter != SAGE_END_DELIMETER:
+        if description:
+            descriptions.append(description)
+        
         index += 1
-        description = spreadsheet.Cells(index,1).Value
+        description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
+        delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
 
     return descriptions
 
