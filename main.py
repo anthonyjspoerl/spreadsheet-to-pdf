@@ -121,7 +121,7 @@ def getDescriptionsInSpreadsheet(spreadsheet):
 def filterTribes(descriptions):
     tribes = []
     for index in range(0, len(descriptions)):
-        tribe = descriptions[index]
+        tribe = descriptions[index].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
             tribes.append(tribe)
     return tribes
