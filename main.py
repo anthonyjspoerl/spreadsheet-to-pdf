@@ -7,9 +7,6 @@ from tkinter import filedialog
 
 APPLICATION_NAME = 'Spreadsheet Too PDF'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
-RANGE = range(3, 8)
-ADD_REGEX = re.compile('.*(add).*', re.IGNORECASE)
-MULTIPLY_REGEX = re.compile('.*(multiply).*', re.IGNORECASE)
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 
 # Tribe list consts
@@ -65,8 +62,8 @@ def setup():
 def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     openWordTemplate(spreadsheet, 'Tribals.docx')
     replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    tribes = getTribesInSpreadsheet(spreadsheet)
-    insertTribalFees(tribes)
+    descriptions = getDescriptionsInSpreadsheet(spreadsheet)
+    insertTribalFees( filterTribes(descriptions) )
     saveDoc('Tribals_out')
 
 def saveDoc(filename):
@@ -109,23 +106,42 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
 
-def getTribesInSpreadsheet(spreadsheet):
+def getDescriptionsInSpreadsheet(spreadsheet):
     index = 2
-    tribes = []
-    tribe = spreadsheet.Cells(index,1).Value
+    descriptions = []
+    description = spreadsheet.Cells(index,1).Value
 
-    while tribe:
-        tribes.append(tribe)
+    while description:
+        descriptions.append(description)
         index += 1
-        tribe = spreadsheet.Cells(index,1).Value
+        description = spreadsheet.Cells(index,1).Value
 
+    return descriptions
+
+def filterTribes(descriptions):
+    tribes = []
+    for index in range(0, len(descriptions)):
+        tribe = descriptions[index]
+        if tribe in TRIBAL_FEE_DICTIONARY:
+            tribes.append(tribe)
     return tribes
 
-def insertTribalFees(tribes):        
+def insertTribalFees(tribes):
+    setCopyText(len(tribes))
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
             findAndReplace('_tribe_', TRIBAL_FEE_DICTIONARY[tribe][0])
             findAndReplace('_amount_', TRIBAL_FEE_DICTIONARY[tribe][1])
+
+def setCopyText(numTribes):
+    selection = word.Selection
+
+    selection.Find.Execute('_tribe_')
+    selection.Expand(COM_CONSTANTS.wdLine)
+    selection.Copy()
+    for index in range(0,numTribes):
+        selection.Paste()
+    selection.WholeStory()
 
 def fillWithWhitespace(str, expectedSize):
     #TODO This will need to use the largest amount (num of digits) as expected
@@ -225,4 +241,4 @@ if __name__ == "__main__":
 
 #GSS Admin Fee: # of tribes * 40
 #Sante Sioux: markup %15 of cost
-#Ponca Tribe: PTC vs Non PTC (special case)
+#Ponca Tribe: PTC vs Non PTC (special case) ## use PTC by default
