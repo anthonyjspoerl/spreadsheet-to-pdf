@@ -44,8 +44,9 @@ def menuHelp():
 def menuAbout():
     top = Toplevel()
     top.title("About Info")
-    msg = Message(top, text = "Send me your\nmonies at butts@money.com")
-    msg.pack(side = "left")
+    messagetext = "Send me your monies at butts@money.com"
+    msg = Message(top, text = messagetext, width = 300)
+    msg.grid(column = 0, row = 0)
 
 def setupTribalsDictionary():
     spreadsheet = openExcel(TRIBE_LIST_FILE)
