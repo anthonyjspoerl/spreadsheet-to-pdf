@@ -7,6 +7,7 @@ from tkinter import filedialog
 
 APPLICATION_NAME = 'Spreadsheet Too PDF'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
+DEFAULT_OUTPUT_FOLDER = os.path.expanduser('~') + '/Documents/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 EMERGENCY_EXIT_THRESHOLD = 100
 GET_DESCRIPTION_ERROR = 'Search ran too long in Sage spreadsheet without finding "Report". See help for more details.'
@@ -84,8 +85,8 @@ def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, locatio
     saveDoc('Tribals_out')
 
 def saveDoc(filename):
-    doc.SaveAs( os.getcwd() + '/' + filename )
-    doc.ExportAsFixedFormat(os.getcwd() + '/' + filename, COM_CONSTANTS.wdExportFormatPDF)
+    doc.SaveAs(DEFAULT_OUTPUT_FOLDER + filename)
+    doc.ExportAsFixedFormat(DEFAULT_OUTPUT_FOLDER + filename, COM_CONSTANTS.wdExportFormatPDF)
 
 def cleanup():
     closeExcel()
@@ -111,6 +112,7 @@ def closeExcel():
 def openWordTemplate(spreadsheet, templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
+    doc.ActiveWindow.View.Type = COM_CONSTANTS.wdPrintView
     word.Visible = False
         
 def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state):
