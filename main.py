@@ -1,6 +1,7 @@
 import os
 import re
 import win32com.client as win32
+import webbrowser
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
@@ -38,10 +39,13 @@ COM_CONSTANTS = win32.constants
 #----------------------------------------------------------------------
 
 def menuHelp():
-    print("Help")
+    webbrowser.open('file:///C:/Users/Zach/Desktop/newPython/help.html')
 
 def menuAbout():
-    print("About")    
+    top = Toplevel()
+    top.title("About Info")
+    msg = Message(top, text = "Send me your\nmonies at butts@money.com")
+    msg.pack(side = "left")
 
 def setupTribalsDictionary():
     spreadsheet = openExcel(TRIBE_LIST_FILE)
