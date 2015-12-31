@@ -9,6 +9,8 @@ from tkinter import filedialog
 APPLICATION_NAME = 'Spreadsheet Too PDF'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
+EMERGENCY_EXIT_THRESHOLD = 100
+GET_DESCRIPTION_ERROR = 'Search ran too long in Sage spreadsheet without finding "Report". See help for more details.'
 
 PER_TRIBE_GSS_FEE = 40
 TCNS_REGEX = re.compile('.*(TCNS).*', re.IGNORECASE)
@@ -115,7 +117,6 @@ def openWordTemplate(spreadsheet, templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     word.Visible = False
-
         
 def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state):
     findAndReplace('_invoice_num_', invoiceNum)
@@ -129,20 +130,28 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
 def getDescriptionsInSpreadsheet(spreadsheet):
     tcnsNumber = ''
     index = 2
+    emergencyExitCounter = 0
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
     descriptions = []
     description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
-
-    while delimeter != SAGE_END_DELIMETER:
+    while delimeter != SAGE_END_DELIMETER and emergencyExitCounter < EMERGENCY_EXIT_THRESHOLD:
         if description:
             descriptions.append(description)
-        
         index += 1
         description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
+        
         delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
+        if delimeter == None:
+            emergencyExitCounter += 1
+        else:
+            emergencyExitCounter = 0
+
         tempTcns = spreadsheet.Cells(index,TCNS_COLUMN).Value
         if tempTcns != None and tcnsNumber == '' and TCNS_REGEX.match(tempTcns) != None:
             tcnsNumber = tempTcns
+
+    if(emergencyExitCounter >= 100):
+        raise Exception(GET_DESCRIPTION_ERROR)
 
     findAndReplace('_trans_ref_num_', tcnsNumber)
     return descriptions
@@ -173,7 +182,6 @@ def insertTribalFees(tribes):
 
             findAndReplace('_tribe_', tribeName)
             findAndReplace('_amount_', fee)
-
     adminFee = tribeCount * PER_TRIBE_GSS_FEE
     findAndReplace('_admin_fee_', adminFee)
     total += adminFee
