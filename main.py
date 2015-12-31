@@ -39,6 +39,12 @@ COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
 
+def menuHelp():
+    print("Help")
+
+def menuAbout():
+    print("About")    
+
 def setupTribalsDictionary():
     spreadsheet = openExcel(TRIBE_LIST_FILE)
     loadFees(spreadsheet)
@@ -223,6 +229,13 @@ def getInputs():
     titleLabel.grid(row = 0, column = 0)
 
     window.bind("<Return>", submit)
+
+    menubar = Menu(window)
+    filemenu = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label = "Help", menu = filemenu)
+    filemenu.add_command(label = "Help", command = menuHelp)
+    filemenu.add_command(label = "About", command = menuAbout)
+    window.config(menu = menubar)
 
     fileLabel = Label(fileFrame, text = "Spreadsheet: ")
     fileLabel.grid(row = 1, column = 0, pady = 10, sticky = W)
