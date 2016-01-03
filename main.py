@@ -12,6 +12,8 @@ DEFAULT_OUTPUT_FOLDER = os.path.expanduser('~') + '/Documents/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 EMERGENCY_EXIT_THRESHOLD = 100
 GET_DESCRIPTION_ERROR = 'Search ran too long in Sage spreadsheet without finding "Report". See help for more details.'
+DATE_TUPLE = 0
+TRIBE_TUPLE = 1
 
 PER_TRIBE_GSS_FEE = 40
 TCNS_REGEX = re.compile('.*(TCNS).*', re.IGNORECASE)
@@ -26,6 +28,7 @@ FEE_COLUMN = 4
 
 # Sage spreadsheet consts
 JOB_COLUMN = 1
+DATE_COLUMN = 6
 DESCRIPION_COLUMN = 7
 TCNS_COLUMN = 8
 SAGE_END_DELIMETER = 'Report'
@@ -138,7 +141,8 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
     while delimeter != SAGE_END_DELIMETER and emergencyExitCounter < EMERGENCY_EXIT_THRESHOLD:
         if description:
-            descriptions.append(description)
+            date = spreadsheet.Cells(index, DATE_COLUMN)
+            descriptions.append( (date, description) )
         index += 1
         description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
         
@@ -160,13 +164,16 @@ def getDescriptionsInSpreadsheet(spreadsheet):
 
 def filterTribes(descriptions):
     tribes = {}
+    date = ''
     for index in range(0, len(descriptions)):
-        tribe = descriptions[index].split('-')[0].strip()
+        tribe = descriptions[index][TRIBE_TUPLE].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
             if tribe in tribes:
                 tribes[tribe] += 1
+                date = descriptions[index][DATE_TUPLE]
             else:
                 tribes[tribe] = 1
+    findAndReplace('_date_paid_', date)
     return tribes
 
 def insertTribalFees(tribes):
