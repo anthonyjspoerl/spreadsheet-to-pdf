@@ -25,7 +25,6 @@ LIST_START_INDEX = 4
 LIST_END = 'END'
 SAGE_TRIBE_COLUMN = 1
 GSS_TRIBE_COLUMN = 2
-FEE_COLUMN = 4
 
 # Sage spreadsheet consts
 JOB_COLUMN = 1
@@ -69,8 +68,7 @@ def loadFees(spreadsheet):
         sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
         if(sageTribe != None and sageTribe.strip() != ''):
             tribe = spreadsheet.Cells(index, GSS_TRIBE_COLUMN).Value
-            fee = spreadsheet.Cells(index, FEE_COLUMN).Value
-            TRIBAL_FEE_DICTIONARY[sageTribe] = [tribe, fee]
+            TRIBAL_FEE_DICTIONARY[sageTribe] = tribe
         index += 1
     # Could fail if there is no 'END' signifier, maybe add a timeout to be sure
 
@@ -190,7 +188,7 @@ def insertTribalFees(tribes):
     total = 0
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
-            tribeName = TRIBAL_FEE_DICTIONARY[tribe][0]
+            tribeName = TRIBAL_FEE_DICTIONARY[tribe]
             fee = tribes[tribe][1]
 
             tribeCount += tribes[tribe][0]
