@@ -14,6 +14,7 @@ EMERGENCY_EXIT_THRESHOLD = 100
 GET_DESCRIPTION_ERROR = 'Search ran too long in Sage spreadsheet without finding "Report". See help for more details.'
 DATE_TUPLE = 0
 TRIBE_TUPLE = 1
+FEE_TUPLE = 2
 
 PER_TRIBE_GSS_FEE = 40
 TCNS_REGEX = re.compile('.*(TCNS).*', re.IGNORECASE)
@@ -31,6 +32,7 @@ JOB_COLUMN = 1
 DATE_COLUMN = 6
 DESCRIPION_COLUMN = 7
 TCNS_COLUMN = 8
+FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
@@ -141,8 +143,9 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
     while delimeter != SAGE_END_DELIMETER and emergencyExitCounter < EMERGENCY_EXIT_THRESHOLD:
         if description:
-            date = spreadsheet.Cells(index, DATE_COLUMN)
-            descriptions.append( (date, description) )
+            date = spreadsheet.Cells(index, DATE_COLUMN).Value
+            fee = spreadsheet.Cells(index, FEE_COLUMN).Value # Only used for tribe, bother checkin for None?
+            descriptions.append( (date, description, fee) )
         index += 1
         description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
         
@@ -168,11 +171,15 @@ def filterTribes(descriptions):
     for index in range(0, len(descriptions)):
         tribe = descriptions[index][TRIBE_TUPLE].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
+            fee = descriptions[index][FEE_TUPLE]
             if tribe in tribes:
-                tribes[tribe] += 1
+                tribes[tribe][0] += 1
+                tribes[tribe][1] += fee
                 date = descriptions[index][DATE_TUPLE]
             else:
-                tribes[tribe] = 1
+                tribes[tribe] = []
+                tribes[tribe].append(1) # index 0
+                tribes[tribe].append(fee) # index 1
     findAndReplace('_date_paid_', date)
     return tribes
 
@@ -184,9 +191,9 @@ def insertTribalFees(tribes):
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
             tribeName = TRIBAL_FEE_DICTIONARY[tribe][0]
-            fee = TRIBAL_FEE_DICTIONARY[tribe][1]
+            fee = tribes[tribe][1]
 
-            tribeCount += tribes[tribe]
+            tribeCount += tribes[tribe][0]
             total += fee
 
             findAndReplace('_tribe_', tribeName)
