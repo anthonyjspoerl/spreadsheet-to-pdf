@@ -15,6 +15,7 @@ GET_DESCRIPTION_ERROR = 'Search ran too long in Sage spreadsheet without finding
 DATE_TUPLE = 0
 TRIBE_TUPLE = 1
 FEE_TUPLE = 2
+DATETIME_FORMAT = "%m/%d/%y"
 
 PER_TRIBE_GSS_FEE = 40
 TCNS_REGEX = re.compile('.*(TCNS).*', re.IGNORECASE)
@@ -133,7 +134,7 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_state_', state)
 
 def getDescriptionsInSpreadsheet(spreadsheet):
-    tcnsNumber = ''
+    tcnsNumbers = set()
     index = 2
     emergencyExitCounter = 0
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
@@ -154,18 +155,18 @@ def getDescriptionsInSpreadsheet(spreadsheet):
             emergencyExitCounter = 0
 
         tempTcns = spreadsheet.Cells(index,TCNS_COLUMN).Value
-        if tempTcns != None and tcnsNumber == '' and TCNS_REGEX.match(tempTcns) != None:
-            tcnsNumber = tempTcns
+        if tempTcns != None and TCNS_REGEX.match(tempTcns) != None:
+            tcnsNumbers.add(tempTcns[5:]) # slice out tcns at beggining
 
     if(emergencyExitCounter >= 100):
         raise Exception(GET_DESCRIPTION_ERROR)
 
-    findAndReplace('_trans_ref_num_', tcnsNumber)
+    multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
     return descriptions
 
 def filterTribes(descriptions):
     tribes = {}
-    date = ''
+    dates = set()
     for index in range(0, len(descriptions)):
         tribe = descriptions[index][TRIBE_TUPLE].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
@@ -173,12 +174,12 @@ def filterTribes(descriptions):
             if tribe in tribes:
                 tribes[tribe][0] += 1
                 tribes[tribe][1] += fee
-                date = descriptions[index][DATE_TUPLE]
+                dates.add( descriptions[index][DATE_TUPLE].strftime(DATETIME_FORMAT) )
             else:
                 tribes[tribe] = []
                 tribes[tribe].append(1) # index 0
                 tribes[tribe].append(fee) # index 1
-    findAndReplace('_date_paid_', date)
+    multipleFindAndReplace('_date_paid_', dates)
     return tribes
 
 def insertTribalFees(tribes):
@@ -200,6 +201,17 @@ def insertTribalFees(tribes):
     findAndReplace('_admin_fee_', adminFee)
     total += adminFee
     findAndReplace('_total_',total)
+
+def multipleFindAndReplace(placeholder, itemSet):
+    try:
+        replacementText = itemSet.pop()
+        item = itemSet.pop()
+        while item:
+            replacementText += ' & ' + item
+            item = itemSet.pop()
+
+    except KeyError:
+        findAndReplace(placeholder, replacementText)
 
 def setCopyText(numTribes):
     selection = word.Selection
