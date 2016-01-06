@@ -6,6 +6,8 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
 
+ABOUT_TEXT = 'Product developed by Anthony Spoerl and Zach Garlinghouse for GSS Inc.\n\nIf you have any questions or comments please contact anthonyjspoerl@gmail.com'
+
 APPLICATION_NAME = 'Spreadsheet Too PDF'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 DEFAULT_OUTPUT_FOLDER = os.path.expanduser('~') + '/Documents/'
@@ -15,7 +17,7 @@ GET_DESCRIPTION_ERROR = 'Search ran too long in Sage spreadsheet without finding
 DATE_TUPLE = 0
 TRIBE_TUPLE = 1
 FEE_TUPLE = 2
-DATETIME_FORMAT = "%m/%d/%y"
+DATETIME_FORMAT = '%m/%d/%y'
 
 PER_TRIBE_GSS_FEE = 40
 TCNS_REGEX = re.compile('.*(TCNS).*', re.IGNORECASE)
@@ -52,9 +54,8 @@ def menuHelp():
 def menuAbout():
     top = Toplevel()
     top.title("About Info")
-    messagetext = "Send me your monies at butts@money.com"
-    msg = Message(top, text = messagetext, width = 300)
-    msg.grid(column = 0, row = 0)
+    msg = Message(top, text = ABOUT_TEXT, width = 1000, justify = CENTER)
+    msg.pack()
 
 def setupTribalsDictionary():
     spreadsheet = openExcel(TRIBE_LIST_FILE)
