@@ -38,6 +38,7 @@ FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
+savePath = ''
 excel = 0
 ss = 0
 word = 0
@@ -95,8 +96,8 @@ def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, locatio
     saveDoc('Tribals_out')
 
 def saveDoc(filename):
-    doc.SaveAs(DEFAULT_OUTPUT_FOLDER + filename)
-    doc.ExportAsFixedFormat(DEFAULT_OUTPUT_FOLDER + filename, COM_CONSTANTS.wdExportFormatPDF)
+    doc.SaveAs(savePath)
+    doc.ExportAsFixedFormat(savePath, COM_CONSTANTS.wdExportFormatPDF)
 
 def cleanup():
     closeExcel()
@@ -247,7 +248,16 @@ def getInputs():
             fileEntry.insert(0, filename)
             fileEntry.xview_moveto(1)
 
+    def getSaveFilePath():
+        filename = filedialog.asksaveasfilename()
+        if(filename != ''):
+            saveFileEntry.delete(0, END)
+            saveFileEntry.insert(0, filename)
+            saveFileEntry.xview_moveto(1)
+
     def submit(event = None):
+        global savePath
+        savePath = saveFileEntry.get()
         excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
         window.quit()
 
@@ -276,47 +286,54 @@ def getInputs():
     openFileButton = Button(fileFrame, text = 'Open...', command = getSpreadsheetName)
     openFileButton.grid(row = 1, column = 2)
 
+    saveFileLabel = Label(fileFrame, text = "Save as: ")
+    saveFileLabel.grid(row = 2, column = 0, pady = 10, sticky = W)
+    saveFileEntry = Entry(fileFrame, width = 60)
+    saveFileEntry.grid(row = 2, column = 1, sticky = W)
+    openFileButton = Button(fileFrame, text = 'Open...', command = getSaveFilePath)
+    openFileButton.grid(row = 2, column = 2)
+
     entryFrame = Frame(window)
-    entryFrame.grid(row = 2, column = 0, sticky = W)
+    entryFrame.grid(row = 3, column = 0, sticky = W)
     invoiceLabel = Label(entryFrame, text = "Invoice #: ")
-    invoiceLabel.grid(row = 2, column = 0, pady = 10, sticky = W)
+    invoiceLabel.grid(row = 3, column = 0, pady = 10, sticky = W)
     invoiceEntry = Entry(entryFrame, width = 20)
-    invoiceEntry.grid(row = 2, column = 1, sticky = W)
+    invoiceEntry.grid(row = 3, column = 1, sticky = W)
 
     subdivisionLabel = Label(entryFrame, text = "Subdivision: ")
-    subdivisionLabel.grid(row = 3, column = 0, pady = 10, sticky = W)
+    subdivisionLabel.grid(row = 4, column = 0, pady = 10, sticky = W)
     subdivisionEntry = Entry(entryFrame, width = 20)
-    subdivisionEntry.grid(row = 3, column = 1, stick = W)
+    subdivisionEntry.grid(row = 4, column = 1, stick = W)
     
     referenceLabel = Label(entryFrame, text = "Reference #: ")
-    referenceLabel.grid(row = 4, column = 0, pady = 10, sticky = W)
+    referenceLabel.grid(row = 5, column = 0, pady = 10, sticky = W)
     referenceEntry = Entry(entryFrame, width = 20)
-    referenceEntry.grid(row = 4, column = 1, sticky = W)
+    referenceEntry.grid(row = 5, column = 1, sticky = W)
     
     mpLabel = Label(entryFrame, text = "MP(s): ")
-    mpLabel.grid(row = 5, column = 0, pady = 10, sticky = W)
+    mpLabel.grid(row = 6, column = 0, pady = 10, sticky = W)
     mpEntry = Entry(entryFrame, width = 20)
-    mpEntry.grid(row = 5, column = 1, sticky = W)
+    mpEntry.grid(row = 6, column = 1, sticky = W)
     
     locationLabel = Label(entryFrame, text = "Location (site): ")
-    locationLabel.grid(row = 6, column = 0, pady = 10, sticky = W)
+    locationLabel.grid(row = 7, column = 0, pady = 10, sticky = W)
     locationEntry = Entry(entryFrame, width = 20)
-    locationEntry.grid(row = 6, column = 1, padx = (0,10), sticky = W)
+    locationEntry.grid(row = 7, column = 1, padx = (0,10), sticky = W)
 
     countyLabel = Label(entryFrame, text = "County : ")
-    countyLabel.grid(row = 6, column = 2, pady = 10, sticky = W)
+    countyLabel.grid(row = 7, column = 2, pady = 10, sticky = W)
     countyEntry = Entry(entryFrame, width = 20)
-    countyEntry.grid(row = 6, column = 3, padx = (0,10), sticky = W)
+    countyEntry.grid(row = 7, column = 3, padx = (0,10), sticky = W)
 
     stateLabel = Label(entryFrame, text = "State : ")
-    stateLabel.grid(row = 6, column = 4, pady = 10)
+    stateLabel.grid(row = 7, column = 4, pady = 10)
     stateEntry = Entry(entryFrame, width = 5)
-    stateEntry.grid(row = 6, column = 5)
+    stateEntry.grid(row = 7, column = 5)
     
     submitButton = Button(entryFrame, text = "Submit", command = submit)
-    submitButton.grid(row = 7, column = 4, sticky = S, pady = 10)
+    submitButton.grid(row = 8, column = 4, sticky = S, pady = 10)
     exitButtonWidget = Button(entryFrame, text = "Exit", command = window.quit, bg = "red")
-    exitButtonWidget.grid(row = 7, column = 5, sticky = E, columnspan = 2, pady = 10, padx = 10)
+    exitButtonWidget.grid(row = 8, column = 5, sticky = E, columnspan = 2, pady = 10, padx = 10)
     
     window.mainloop()
 
