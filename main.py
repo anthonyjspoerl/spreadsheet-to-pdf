@@ -176,11 +176,11 @@ def filterTribes(descriptions):
             if tribe in tribes:
                 tribes[tribe][0] += 1
                 tribes[tribe][1] += fee
-                dates.add( descriptions[index][DATE_TUPLE].strftime(DATETIME_FORMAT) )
             else:
                 tribes[tribe] = []
                 tribes[tribe].append(1) # index 0
                 tribes[tribe].append(fee) # index 1
+            dates.add( descriptions[index][DATE_TUPLE].strftime(DATETIME_FORMAT) )
     multipleFindAndReplace('_date_paid_', dates)
     return tribes
 
@@ -198,7 +198,7 @@ def insertTribalFees(tribes):
             total += fee
 
             findAndReplace('_tribe_', tribeName)
-            findAndReplace('_amount_', fee)
+            findAndReplace('_amount_', "{:,.2f}".format(fee))
     adminFee = tribeCount * PER_TRIBE_GSS_FEE
     findAndReplace('_admin_fee_', adminFee)
     total += adminFee
@@ -206,6 +206,7 @@ def insertTribalFees(tribes):
 
 def multipleFindAndReplace(placeholder, itemSet):
     try:
+        replacementText = ''
         replacementText = itemSet.pop()
         item = itemSet.pop()
         while item:
@@ -225,19 +226,15 @@ def setCopyText(numTribes):
         selection.Paste()
     selection.WholeStory()
 
-def fillWithWhitespace(str, expectedSize):
-    #TODO This will need to use the largest amount (num of digits) as expected
-    difference = expectedSize - len(str)
-    if(difference <= 0):
-        return str
-    else:
-        return (' ' * difference) + str
-
 def findAndReplace(searchTerm, replacement):
     selection = word.Selection
 
     selection.Find.Execute(searchTerm)
-    selection.Text = replacement
+    if type(replacement) is float or type(replacement) is int:
+        selection.Text = "{:.2f}".format(replacement)
+    else:
+        selection.Text = replacement
+
     selection.WholeStory()
 
 def getInputs():
