@@ -67,11 +67,12 @@ def loadFees(spreadsheet):
     global TRIBAL_FEE_DICTIONARY
     sageTribe = ''
     index = LIST_START_INDEX
+    sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
     while sageTribe != LIST_END:
-        sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
         if(sageTribe != None and sageTribe.strip() != ''):
             tribe = spreadsheet.Cells(index, GSS_TRIBE_COLUMN).Value
             TRIBAL_FEE_DICTIONARY[sageTribe] = tribe
+        sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
         index += 1
     # Could fail if there is no 'END' signifier, maybe add a timeout to be sure
 
@@ -130,7 +131,10 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_invoice_num_', invoiceNum)
     findAndReplace('_subdivision_', subdivision)
     findAndReplace('_reference_num_', referenceNum)
-    findAndReplace('_mps_', mps)
+    if mps:
+        findAndReplace('_mps_', mps)
+    else:
+        findAndReplace('_mps_', 'NA')
     findAndReplace('_location_', location)
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
