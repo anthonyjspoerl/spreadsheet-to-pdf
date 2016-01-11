@@ -38,6 +38,8 @@ FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
+tcnsNumbers = set()
+dates = set()
 savePath = ''
 excel = 0
 ss = 0
@@ -140,9 +142,12 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_location_', location)
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
+    multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
+    multipleFindAndReplace('_date_paid_', dates)
+
 
 def getDescriptionsInSpreadsheet(spreadsheet):
-    tcnsNumbers = set()
+    global tcnsNumbers
     index = 2
     emergencyExitCounter = 0
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
@@ -169,12 +174,11 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     if(emergencyExitCounter >= 100):
         raise Exception(GET_DESCRIPTION_ERROR)
 
-    multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
     return descriptions
 
 def filterTribes(descriptions):
+    global dates
     tribes = {}
-    dates = set()
     for index in range(0, len(descriptions)):
         tribe = descriptions[index][TRIBE_TUPLE].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
@@ -187,7 +191,6 @@ def filterTribes(descriptions):
                 tribes[tribe].append(1) # index 0
                 tribes[tribe].append(fee) # index 1
             dates.add( descriptions[index][DATE_TUPLE].strftime(DATETIME_FORMAT) )
-    multipleFindAndReplace('_date_paid_', dates)
     return tribes
 
 def insertTribalFees(tribes):
@@ -239,7 +242,7 @@ def findAndReplace(searchTerm, replacement):
     if type(replacement) is float or type(replacement) is int:
         selection.Text = "{:.2f}".format(replacement)
     else:
-        selection.Text = replacement
+        selection.Text = str(replacement)
 
     selection.WholeStory()
 
