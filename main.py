@@ -79,7 +79,9 @@ def loadFees(spreadsheet):
 def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     try:
         spreadsheet = openExcel(spreadsheetName)
-        saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+        descriptions = getDescriptionsInSpreadsheet(spreadsheet)
+        tribes = filterTribes(descriptions)
+        saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
     except Exception as e:
         messagebox.showerror("Error", str(e))
         cleanup()
@@ -89,12 +91,12 @@ def setup():
     word = win32.gencache.EnsureDispatch('Word.Application')
     excel = win32.gencache.EnsureDispatch('Excel.Application')
 
-def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state):
-    openWordTemplate(spreadsheet, 'Tribals.docx')
-    replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    descriptions = getDescriptionsInSpreadsheet(spreadsheet)
-    insertTribalFees( filterTribes(descriptions) )
-    saveDoc('Tribals_out')
+def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
+    if tribes:
+        openWordTemplate('Tribals.docx')
+        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
+        insertTribalFees( tribes )
+        saveDoc('Tribals_out')
 
 def saveDoc(filename):
     doc.SaveAs(savePath)
@@ -121,7 +123,7 @@ def closeExcel():
     if(excel != 0):
         excel.Application.Quit()
 
-def openWordTemplate(spreadsheet, templateName):
+def openWordTemplate(templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     doc.ActiveWindow.View.Type = COM_CONSTANTS.wdPrintView
