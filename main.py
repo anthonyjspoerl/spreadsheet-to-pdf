@@ -1,5 +1,4 @@
-import os
-import re
+import os, re, time, traceback
 import win32com.client as win32
 import webbrowser
 from tkinter import *
@@ -38,6 +37,8 @@ FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
+tcnsNumbers = set()
+dates = set()
 savePath = ''
 excel = 0
 ss = 0
@@ -77,24 +78,25 @@ def loadFees(spreadsheet):
     # Could fail if there is no 'END' signifier, maybe add a timeout to be sure
 
 def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, location, county, state):
-    try:
-        spreadsheet = openExcel(spreadsheetName)
-        saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-        cleanup()
+    spreadsheet = openExcel(spreadsheetName)
+    descriptions = getDescriptionsInSpreadsheet(spreadsheet)
+    tribes = filterTribes(descriptions)
+    saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+
+    # messagebox.showerror("Error", str(e))
+    # cleanup()
 
 def setup():
     global word, excel
     word = win32.gencache.EnsureDispatch('Word.Application')
     excel = win32.gencache.EnsureDispatch('Excel.Application')
 
-def saveTribals(spreadsheet, invoiceNum, subdivision, referenceNum, mps, location, county, state):
-    openWordTemplate(spreadsheet, 'Tribals.docx')
-    replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    descriptions = getDescriptionsInSpreadsheet(spreadsheet)
-    insertTribalFees( filterTribes(descriptions) )
-    saveDoc('Tribals_out')
+def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
+    if tribes:
+        openWordTemplate('Tribals.docx')
+        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
+        insertTribalFees( tribes )
+        saveDoc('Tribals_out')
 
 def saveDoc(filename):
     doc.SaveAs(savePath)
@@ -121,7 +123,7 @@ def closeExcel():
     if(excel != 0):
         excel.Application.Quit()
 
-def openWordTemplate(spreadsheet, templateName):
+def openWordTemplate(templateName):
     global word, doc
     doc = word.Documents.Open(TEMPLATE_PATH + templateName)
     doc.ActiveWindow.View.Type = COM_CONSTANTS.wdPrintView
@@ -138,9 +140,12 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_location_', location)
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
+    multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
+    multipleFindAndReplace('_date_paid_', dates)
+
 
 def getDescriptionsInSpreadsheet(spreadsheet):
-    tcnsNumbers = set()
+    global tcnsNumbers
     index = 2
     emergencyExitCounter = 0
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
@@ -167,12 +172,11 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     if(emergencyExitCounter >= 100):
         raise Exception(GET_DESCRIPTION_ERROR)
 
-    multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
     return descriptions
 
 def filterTribes(descriptions):
+    global dates
     tribes = {}
-    dates = set()
     for index in range(0, len(descriptions)):
         tribe = descriptions[index][TRIBE_TUPLE].split('-')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
@@ -185,7 +189,6 @@ def filterTribes(descriptions):
                 tribes[tribe].append(1) # index 0
                 tribes[tribe].append(fee) # index 1
             dates.add( descriptions[index][DATE_TUPLE].strftime(DATETIME_FORMAT) )
-    multipleFindAndReplace('_date_paid_', dates)
     return tribes
 
 def insertTribalFees(tribes):
@@ -237,7 +240,7 @@ def findAndReplace(searchTerm, replacement):
     if type(replacement) is float or type(replacement) is int:
         selection.Text = "{:.2f}".format(replacement)
     else:
-        selection.Text = replacement
+        selection.Text = str(replacement)
 
     selection.WholeStory()
 
@@ -340,10 +343,20 @@ def getInputs():
 
 
 if __name__ == "__main__":
-    setup()
-    setupTribalsDictionary()
-    getInputs()
-    cleanup()
+    try:
+        setup()
+        setupTribalsDictionary()
+        getInputs()
+        cleanup()
+    except:
+        messagebox.showerror("Error", "An error has occured. For more information, see errors.log in your Sage to PDF folder.")
+        
+        errorLog = open('errors.log', 'a')
+        errorLog.write(time.strftime("\n%d/%m/%y %H:%M:%S\n"))
+        errorLog.write(traceback.format_exc())
+        errorLog.close()
+        
+        cleanup()
 
 #Sante Sioux: markup %15 of cost
 #Ponca Tribe: PTC vs Non PTC (special case) ## use PTC by default
