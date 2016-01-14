@@ -1,5 +1,4 @@
-import os
-import re
+import os, re, time, traceback
 import win32com.client as win32
 import webbrowser
 from tkinter import *
@@ -79,14 +78,13 @@ def loadFees(spreadsheet):
     # Could fail if there is no 'END' signifier, maybe add a timeout to be sure
 
 def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, location, county, state):
-    try:
-        spreadsheet = openExcel(spreadsheetName)
-        descriptions = getDescriptionsInSpreadsheet(spreadsheet)
-        tribes = filterTribes(descriptions)
-        saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-        cleanup()
+    spreadsheet = openExcel(spreadsheetName)
+    descriptions = getDescriptionsInSpreadsheet(spreadsheet)
+    tribes = filterTribes(descriptions)
+    saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+
+    # messagebox.showerror("Error", str(e))
+    # cleanup()
 
 def setup():
     global word, excel
@@ -345,10 +343,20 @@ def getInputs():
 
 
 if __name__ == "__main__":
-    setup()
-    setupTribalsDictionary()
-    getInputs()
-    cleanup()
+    try:
+        setup()
+        setupTribalsDictionary()
+        getInputs()
+        cleanup()
+    except:
+        messagebox.showerror("Error", "An error has occured. For more information, see errors.log in your Sage to PDF folder.")
+        
+        errorLog = open('errors.log', 'a')
+        errorLog.write(time.strftime("\n%d/%m/%y %H:%M:%S\n"))
+        errorLog.write(traceback.format_exc())
+        errorLog.close()
+        
+        cleanup()
 
 #Sante Sioux: markup %15 of cost
 #Ponca Tribe: PTC vs Non PTC (special case) ## use PTC by default
