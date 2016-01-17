@@ -37,7 +37,7 @@ FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
-tcnsNumbers = set()
+tcnsNumberSet = set()
 dates = set()
 savePath = ''
 excel = 0
@@ -49,7 +49,6 @@ doc = 0
 COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
-
 def menuHelp():
     webbrowser.open('file:///C:/Users/Zach/Desktop/newPython/help.html')
 
@@ -82,6 +81,8 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     descriptions = getDescriptionsInSpreadsheet(spreadsheet)
     tribes = filterTribes(descriptions)
     saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+    mappings = filterMappings(descriptions)
+    saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state)
 
 def setup():
     global word, excel
@@ -91,13 +92,19 @@ def setup():
 def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if tribes:
         openWordTemplate('Tribals.docx')
-        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state)
+        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
         insertTribalFees( tribes )
-        saveDoc('Tribals_out')
+        saveDoc('Tribals')
+
+def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state):
+    if mappings:
+        openWordTemplate('Mapping.docx')
+        replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
+        saveDoc('Mapping')
 
 def saveDoc(filename):
-    doc.SaveAs(savePath)
-    doc.ExportAsFixedFormat(savePath, COM_CONSTANTS.wdExportFormatPDF)
+    doc.SaveAs(savePath + ' ' + filename)
+    doc.ExportAsFixedFormat(savePath + ' ' + filename, COM_CONSTANTS.wdExportFormatPDF)
 
 def cleanup():
     closeExcel()
@@ -133,7 +140,7 @@ def openWordTemplate(templateName):
     doc.ActiveWindow.View.Type = COM_CONSTANTS.wdPrintView
     word.Visible = False
         
-def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state):
+def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumbers = None):
     findAndReplace('_invoice_num_', invoiceNum)
     findAndReplace('_subdivision_', subdivision)
     findAndReplace('_reference_num_', referenceNum)
@@ -144,12 +151,13 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     findAndReplace('_location_', location)
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
-    multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
     multipleFindAndReplace('_date_paid_', dates)
+    if tcnsNumbers:
+        multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
 
 
 def getDescriptionsInSpreadsheet(spreadsheet):
-    global tcnsNumbers
+    global tcnsNumberSet
     index = 2
     emergencyExitCounter = 0
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
@@ -171,7 +179,7 @@ def getDescriptionsInSpreadsheet(spreadsheet):
 
         tempTcns = spreadsheet.Cells(index,TCNS_COLUMN).Value
         if tempTcns != None and TCNS_REGEX.match(tempTcns) != None:
-            tcnsNumbers.add(tempTcns[5:]) # slice out tcns at beggining
+            tcnsNumberSet.add(tempTcns[5:]) # slice out tcns at beggining
 
     if(emergencyExitCounter >= 100):
         raise Exception(GET_DESCRIPTION_ERROR)
@@ -215,17 +223,15 @@ def insertTribalFees(tribes):
     total += adminFee
     findAndReplace('_total_',total)
 
-def multipleFindAndReplace(placeholder, itemSet):
-    try:
-        replacementText = ''
-        replacementText = itemSet.pop()
-        item = itemSet.pop()
-        while item:
-            replacementText += ' & ' + item
-            item = itemSet.pop()
+def filterMappings(descriptions):
+    return {}
 
-    except KeyError:
-        findAndReplace(placeholder, replacementText)
+def multipleFindAndReplace(placeholder, itemSet):
+    replacementText = ''
+    for item in itemSet:
+        replacementText += item + ' & '
+
+    findAndReplace(placeholder, replacementText[:-3]) # Trim hanging ampersand
 
 def setCopyText(numTribes):
     selection = word.Selection
@@ -264,10 +270,20 @@ def getInputs():
             saveFileEntry.xview_moveto(1)
 
     def submit(event = None):
-        global savePath
-        savePath = saveFileEntry.get()
-        excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
-        window.quit()
+        try:
+            global savePath
+            savePath = saveFileEntry.get()
+            excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
+            window.quit()
+        except:
+            messagebox.showerror("Error", "An error has occured. For more information, see errors.log in your Sage to PDF folder.")
+
+            errorLog = open('errors.log', 'a')
+            errorLog.write(time.strftime("\n%m/%d/%y %H:%M:%S\n"))
+            errorLog.write(traceback.format_exc())
+            errorLog.close()
+
+            cleanup()
 
     window = Tk()
     window.wm_title(APPLICATION_NAME)
@@ -361,6 +377,7 @@ if __name__ == "__main__":
         errorLog.close()
         
         cleanup()
+
 
 #Sante Sioux: markup %15 of cost
 #Ponca Tribe: PTC vs Non PTC (special case) ## use PTC by default
