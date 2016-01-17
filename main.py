@@ -83,9 +83,6 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     tribes = filterTribes(descriptions)
     saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
 
-    # messagebox.showerror("Error", str(e))
-    # cleanup()
-
 def setup():
     global word, excel
     word = win32.gencache.EnsureDispatch('Word.Application')
@@ -104,10 +101,7 @@ def saveDoc(filename):
 
 def cleanup():
     closeExcel()
-    if(doc != 0):
-        doc.Close(False)
-    if(word != 0):
-        word.Application.Quit()
+    closeWord()         
 
 def openExcel(spreadsheetName):
     global excel, ss
@@ -118,10 +112,20 @@ def openExcel(spreadsheetName):
     return sh
 
 def closeExcel():
+    global ss
     if(ss != 0):
         ss.Close(False)
+        ss = 0
     if(excel != 0):
         excel.Application.Quit()
+
+def closeWord():
+    global doc
+    if(doc != 0):
+        doc.Close(False)
+        doc = 0
+    if(word != 0):
+        word.Application.Quit()
 
 def openWordTemplate(templateName):
     global word, doc
@@ -352,7 +356,7 @@ if __name__ == "__main__":
         messagebox.showerror("Error", "An error has occured. For more information, see errors.log in your Sage to PDF folder.")
         
         errorLog = open('errors.log', 'a')
-        errorLog.write(time.strftime("\n%d/%m/%y %H:%M:%S\n"))
+        errorLog.write(time.strftime("\n%m/%d/%y %H:%M:%S\n"))
         errorLog.write(traceback.format_exc())
         errorLog.close()
         
