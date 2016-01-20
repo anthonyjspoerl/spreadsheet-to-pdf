@@ -72,14 +72,15 @@ def loadFees(spreadsheet):
         if(sageTribe != None and sageTribe.strip() != ''):
             tribe = spreadsheet.Cells(index, GSS_TRIBE_COLUMN).Value
             TRIBAL_FEE_DICTIONARY[sageTribe] = tribe
-        sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
         index += 1
+        sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
     # Could fail if there is no 'END' signifier, maybe add a timeout to be sure
 
 def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     spreadsheet = openExcel(spreadsheetName)
     descriptions = getDescriptionsInSpreadsheet(spreadsheet)
     tribes = filterTribes(descriptions)
+    print(tribes)
     saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
     mappings = filterMappings(descriptions)
     saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state)
@@ -103,12 +104,13 @@ def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location,
         saveDoc('Mapping')
 
 def saveDoc(filename):
-    doc.SaveAs(savePath + ' ' + filename)
-    doc.ExportAsFixedFormat(savePath + ' ' + filename, COM_CONSTANTS.wdExportFormatPDF)
+    saveName = savePath + ' ' + filename
+    doc.SaveAs(saveName)
+    doc.ExportAsFixedFormat(saveName, COM_CONSTANTS.wdExportFormatPDF)
 
 def cleanup():
     closeExcel()
-    closeWord()         
+    closeWord()
 
 def openExcel(spreadsheetName):
     global excel, ss
@@ -208,10 +210,12 @@ def insertTribalFees(tribes):
 
     tribeCount = 0
     total = 0
+    print(TRIBAL_FEE_DICTIONARY)
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
             tribeName = TRIBAL_FEE_DICTIONARY[tribe]
             fee = tribes[tribe][1]
+            print(tribeName)
 
             tribeCount += tribes[tribe][0]
             total += fee
@@ -219,7 +223,7 @@ def insertTribalFees(tribes):
             findAndReplace('_tribe_', tribeName)
             findAndReplace('_amount_', "{:,.2f}".format(fee))
     adminFee = tribeCount * PER_TRIBE_GSS_FEE
-    findAndReplace('_admin_fee_', adminFee)
+    findAndReplace('_admin_fee_', "{:,.2f}".format(adminFee))
     total += adminFee
     findAndReplace('_total_',total)
 

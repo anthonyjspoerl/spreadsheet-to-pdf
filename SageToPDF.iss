@@ -9,11 +9,15 @@ UninstallDisplayIcon={app}\SageToPDF.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:SageToPDFSetup
+PrivilegesRequired=admin
 
 [Files]
-Source: "SageToPDF.exe"; DestDir: "{app}"; DestName: "SageToPDF.exe"
+Source: "dist\main.exe"; DestDir: "{app}"; DestName: "SageToPDF.exe"
 Source: "templates\TribeList.xlsx"; DestDir: "{app}\templates"; DestName: "TribeList.xlsx"
 Source: "templates\Tribals.docx"; DestDir: "{app}\templates"; DestName: "Tribals.docx"
+Source: "templates\Mapping.docx"; DestDir: "{app}\templates"; DestName: "Mapping.docx"
+Source: "templates\Ethno.docx"; DestDir: "{app}\templates"; DestName: "Ethno.docx"
+Source: "templates\Field Survey.docx"; DestDir: "{app}\templates"; DestName: "Field Survey.docx"
 Source: "templates\TribeList.xlsx"; DestDir: "{app}\templates"; DestName: "TribeList.xlsx"
 Source: "help.html"; DestDir: "{app}"
 Source: "Readme.md"; DestDir: "{app}"; DestName: "Readme.txt"; Flags: isreadme
