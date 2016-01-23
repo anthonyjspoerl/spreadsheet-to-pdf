@@ -60,16 +60,17 @@ def menuAbout():
 
 def setupTribalsDictionary():
     spreadsheet = openExcel(TRIBE_LIST_FILE)
-    loadFees(spreadsheet)
+    loadTribes(spreadsheet)
     closeExcel()
 
-def loadFees(spreadsheet):
+def loadTribes(spreadsheet):
     global TRIBAL_FEE_DICTIONARY
     sageTribe = ''
     index = LIST_START_INDEX
     sageTribe = spreadsheet.Cells(index, SAGE_TRIBE_COLUMN).Value
     while sageTribe != LIST_END:
         if(sageTribe != None and sageTribe.strip() != ''):
+            sageTribe = sageTribe[:30] # Sage only uses 30 chars in description
             tribe = spreadsheet.Cells(index, GSS_TRIBE_COLUMN).Value
             TRIBAL_FEE_DICTIONARY[sageTribe] = tribe
         index += 1
@@ -192,8 +193,10 @@ def filterTribes(descriptions):
     global dates
     tribes = {}
     for index in range(0, len(descriptions)):
-        tribe = descriptions[index][TRIBE_TUPLE].split('-')[0].strip()
+        tribe = descriptions[index][TRIBE_TUPLE].split('- Item:')[0].strip()
+        print(tribe)
         if tribe in TRIBAL_FEE_DICTIONARY:
+            print('Found tribe: ' + tribe)
             fee = descriptions[index][FEE_TUPLE]
             if tribe in tribes:
                 tribes[tribe][0] += 1
@@ -210,7 +213,6 @@ def insertTribalFees(tribes):
 
     tribeCount = 0
     total = 0
-    print(TRIBAL_FEE_DICTIONARY)
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
             tribeName = TRIBAL_FEE_DICTIONARY[tribe]
