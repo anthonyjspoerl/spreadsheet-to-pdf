@@ -8,6 +8,7 @@ from tkinter import filedialog
 ABOUT_TEXT = 'Product developed by Anthony Spoerl and Zach Garlinghouse for GSS Inc.\n\nIf you have any questions or comments please contact anthonyjspoerl@gmail.com'
 
 APPLICATION_NAME = 'Spreadsheet Too PDF'
+PROP_FILE = '.prop'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 DEFAULT_OUTPUT_FOLDER = os.path.expanduser('~') + '/Documents/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
@@ -37,6 +38,8 @@ FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
+DEFAULT_OPEN_PATH = ''
+DEFAULT_SAVETO_PATH = ''
 tcnsNumberSet = set()
 dates = set()
 savePath = ''
@@ -81,7 +84,6 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     spreadsheet = openExcel(spreadsheetName)
     descriptions = getDescriptionsInSpreadsheet(spreadsheet)
     tribes = filterTribes(descriptions)
-    print(tribes)
     saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
     mappings = filterMappings(descriptions)
     saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state)
@@ -90,6 +92,16 @@ def setup():
     global word, excel
     word = win32.gencache.EnsureDispatch('Word.Application')
     excel = win32.gencache.EnsureDispatch('Excel.Application')
+    loadPropertyFile()
+
+def loadPropertyFile():
+    if os.path.isfile(PROP_FILE):
+        global DEFAULT_OPEN_PATH, DEFAULT_SAVETO_PATH
+        propFile = open(PROP_FILE, 'r')
+        propFile.readline() # [open]
+        DEFAULT_OPEN_PATH = propFile.readline().strip('\n')
+        propFile.readline() # [saveTo]
+        DEFAULT_SAVETO_PATH = propFile.readline().strip('\n')
 
 def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if tribes:
@@ -194,9 +206,7 @@ def filterTribes(descriptions):
     tribes = {}
     for index in range(0, len(descriptions)):
         tribe = descriptions[index][TRIBE_TUPLE].split('- Item:')[0].strip()
-        print(tribe)
         if tribe in TRIBAL_FEE_DICTIONARY:
-            print('Found tribe: ' + tribe)
             fee = descriptions[index][FEE_TUPLE]
             if tribe in tribes:
                 tribes[tribe][0] += 1
@@ -217,7 +227,6 @@ def insertTribalFees(tribes):
         if tribe in TRIBAL_FEE_DICTIONARY:
             tribeName = TRIBAL_FEE_DICTIONARY[tribe]
             fee = tribes[tribe][1]
-            print(tribeName)
 
             tribeCount += tribes[tribe][0]
             total += fee
@@ -312,6 +321,7 @@ def getInputs():
     fileLabel = Label(fileFrame, text = "Spreadsheet: ")
     fileLabel.grid(row = 1, column = 0, pady = 10, sticky = W)
     fileEntry = Entry(fileFrame, width = 60)
+    fileEntry.insert(0,DEFAULT_OPEN_PATH)
     fileEntry.grid(row = 1, column = 1, sticky = W)
     openFileButton = Button(fileFrame, text = 'Open...', command = getSpreadsheetName)
     openFileButton.grid(row = 1, column = 2)
@@ -319,6 +329,7 @@ def getInputs():
     saveFileLabel = Label(fileFrame, text = "Save as: ")
     saveFileLabel.grid(row = 2, column = 0, pady = 10, sticky = W)
     saveFileEntry = Entry(fileFrame, width = 60)
+    saveFileEntry.insert(0,DEFAULT_SAVETO_PATH)
     saveFileEntry.grid(row = 2, column = 1, sticky = W)
     openFileButton = Button(fileFrame, text = 'Open...', command = getSaveFilePath)
     openFileButton.grid(row = 2, column = 2)
