@@ -1,4 +1,4 @@
-import os, re, time, traceback
+import os, re, time, traceback, subprocess
 import win32com.client as win32
 import webbrowser
 from tkinter import *
@@ -108,7 +108,9 @@ def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, co
         openWordTemplate('Tribals.docx')
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
         insertTribalFees( tribes )
-        saveDoc('Tribals')
+        saveName = savePath + ' Tribals'
+        saveDoc(saveName)
+        openPDF(saveName)
 
 def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if mappings:
@@ -116,10 +118,12 @@ def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location,
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
         saveDoc('Mapping')
 
-def saveDoc(filename):
-    saveName = savePath + ' ' + filename
+def saveDoc(saveName):
     doc.SaveAs(saveName)
     doc.ExportAsFixedFormat(saveName, COM_CONSTANTS.wdExportFormatPDF)
+    
+def openPDF(saveName):
+    subprocess.Popen(saveName + '.pdf',shell=True)
 
 def cleanup():
     closeExcel()
@@ -236,7 +240,7 @@ def insertTribalFees(tribes):
     adminFee = tribeCount * PER_TRIBE_GSS_FEE
     findAndReplace('_admin_fee_', "{:,.2f}".format(adminFee))
     total += adminFee
-    findAndReplace('_total_',total)
+    findAndReplace('_total_',"{:,.2f}".format(total))
 
 def filterMappings(descriptions):
     return {}
@@ -271,14 +275,14 @@ def findAndReplace(searchTerm, replacement):
 
 def getInputs():
     def getSpreadsheetName():
-        filename = filedialog.askopenfilename(defaultextension = '.xlsx', filetypes = INPUT_FILETYPES)
+        filename = filedialog.askopenfilename(initialdir = fileEntry.get(), defaultextension = '.xlsx', filetypes = INPUT_FILETYPES)
         if(filename != ''):
             fileEntry.delete(0, END)
             fileEntry.insert(0, filename)
             fileEntry.xview_moveto(1)
 
     def getSaveFilePath():
-        filename = filedialog.asksaveasfilename()
+        filename = filedialog.asksaveasfilename(initialdir = saveFileEntry.get())
         if(filename != ''):
             saveFileEntry.delete(0, END)
             saveFileEntry.insert(0, filename)

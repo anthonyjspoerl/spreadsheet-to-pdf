@@ -1,5 +1,22 @@
 <html>
 <body>
-    <h1>Help doc coming in next update.</h1>
+    <h1>Note: Help document under construction.</h1>
+    <h2>Editing Tribes</h2>
+    <p>Tribe names are mapped from what Sage outputs to a different name in the Tribal supporting document. These mappings can be changed by editing TribeList.xlsx in the SageToPDF\Templates\ folder (typically found at C:\Program Files (x86)\Sage To PDF).</p>
+    <p>Only two columns are used by the program. Values in all other columns are ignored.</p>
+    <ul>
+        <li>
+            <h4>Sage Tribal List</h4>
+            <p>The name that Sage will export to Excel. This should exactly match everything before the "Item:" in the "Trans Descriptions" column.</p>
+            <p>Sage truncates anything beyond 30 characters, this program mimics that by ignoring anything in this column beyond 30 characters.</p>
+            <p>E.G.: "Lac du Flambeau Band of Lake Superior" is shortened to "Lac du Flambeau Band of Lake S" while searching.</p>
+        </li>
+        <li><h4>Tribal</h4></li>
+        <li>
+            <h4>END</h4>
+            <p>This signifies the end of the list of tribes to load.</p>
+            <p>WARNING: Without this the program will keep reading the spreadsheet until it crashes.</p>
+        </li>
+    </ul>
 </body>
 </html>

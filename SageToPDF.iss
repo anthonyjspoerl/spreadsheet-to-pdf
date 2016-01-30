@@ -21,7 +21,7 @@ Source: "templates\Field Survey.docx"; DestDir: "{app}\templates"; DestName: "Fi
 Source: "templates\TribeList.xlsx"; DestDir: "{app}\templates"; DestName: "TribeList.xlsx"
 Source: "help.html"; DestDir: "{app}"
 Source: "Readme.md"; DestDir: "{app}"; DestName: "Readme.txt"; Flags: isreadme
-Source: "default.prop"; DesDir: "{app}"; DestName: ".prop";
+Source: "default.prop"; DestDir: "{app}"; DestName: ".prop";
 ; DLLs
 Source: dist\main\mfc100u.dll; DestDir: {app}\bin; Flags: restartreplace ignoreversion
 Source: dist\main\msvcr100.dll; DestDir: {app}\bin; Flags: restartreplace ignoreversion
