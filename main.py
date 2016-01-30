@@ -10,6 +10,7 @@ ABOUT_TEXT = 'Product developed by Anthony Spoerl and Zach Garlinghouse for GSS 
 APPLICATION_NAME = 'Spreadsheet Too PDF'
 PROP_FILE = '.prop'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
+HELP_PATH = os.getcwd() + '/help.html'
 DEFAULT_OUTPUT_FOLDER = os.path.expanduser('~') + '/Documents/'
 INPUT_FILETYPES = [('Excel', '*.xlsx;*.xls;*.xlsm'),('All', '*.*')]
 EMERGENCY_EXIT_THRESHOLD = 100
@@ -53,7 +54,7 @@ COM_CONSTANTS = win32.constants
 
 #----------------------------------------------------------------------
 def menuHelp():
-    webbrowser.open('file:///C:/Users/Zach/Desktop/newPython/help.html')
+    webbrowser.open(HELP_PATH)
 
 def menuAbout():
     top = Toplevel()
