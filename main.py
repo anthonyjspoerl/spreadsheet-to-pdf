@@ -304,6 +304,46 @@ def getInputs():
 
             cleanup()
 
+    def openPreferencesDialog():
+        def savePreferences():
+            DEFAULT_OPEN_PATH = openEntry.get()
+            DEFAULT_SAVETO_PATH = saveToEntry.get()
+            fileEntry.insert(0,DEFAULT_OPEN_PATH)
+            saveFileEntry.insert(0,DEFAULT_SAVETO_PATH)
+
+            propFile = open(PROP_FILE, 'r')
+
+            data = propFile.readlines()
+            data[1] = DEFAULT_OPEN_PATH + '\n'
+            data[3] = DEFAULT_SAVETO_PATH + '\n'
+
+            propFile = open(PROP_FILE, 'w')
+            propFile.writelines(data)
+
+            preferencesWindow.destroy()
+
+        preferencesWindow = Tk()
+        preferencesWindow.wm_title('Preferences')
+
+        openLabel = Label(preferencesWindow, text = "Default open path: ")
+        openLabel.grid(row = 0, column = 0)
+        openEntry = Entry(preferencesWindow, width = 60)
+        openEntry.insert(0, DEFAULT_OPEN_PATH)
+        openEntry.grid(row = 0, column = 1)
+        saveToLabel = Label(preferencesWindow, text = "Default save path and name: ")
+        saveToLabel.grid(row = 1, column = 0)
+        saveToEntry = Entry(preferencesWindow, width = 60)
+        saveToEntry.insert(0, DEFAULT_SAVETO_PATH)
+        saveToEntry.grid(row = 1, column = 1)
+        preferencesFrame = Frame(preferencesWindow)
+        preferencesFrame.grid(row = 2, column = 1, sticky = E)
+        okButton = Button(preferencesFrame, text = "Ok", command = savePreferences)
+        okButton.grid(row = 0, column = 0, sticky = E, padx = 10)
+        cancelButtonWidget = Button(preferencesFrame, text = "Cancel", command = preferencesWindow.destroy, bg = "red")
+        cancelButtonWidget.grid(row = 0, column = 1, sticky = E)
+
+        preferencesWindow.mainloop()
+
     window = Tk()
     window.wm_title(APPLICATION_NAME)
     
@@ -317,6 +357,7 @@ def getInputs():
 
     menubar = Menu(window)
     filemenu = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label = "Preferences", command = openPreferencesDialog)
     menubar.add_cascade(label = "Help", menu = filemenu)
     filemenu.add_command(label = "Help", command = menuHelp)
     filemenu.add_command(label = "About", command = menuAbout)
