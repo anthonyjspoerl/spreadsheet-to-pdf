@@ -122,7 +122,7 @@ def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location,
 def saveDoc(saveName):
     doc.SaveAs(saveName)
     doc.ExportAsFixedFormat(saveName, COM_CONSTANTS.wdExportFormatPDF)
-    
+
 def openPDF(saveName):
     subprocess.Popen(saveName + '.pdf',shell=True)
 
@@ -292,7 +292,7 @@ def getInputs():
     def submit(event = None):
         try:
             global savePath
-            savePath = saveFileEntry.get()
+            savePath = os.path.abspath(saveFileEntry.get().replace("\\", "\\\\"))
             excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
             window.quit()
         except:
