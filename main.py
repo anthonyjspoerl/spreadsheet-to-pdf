@@ -97,12 +97,16 @@ def setup():
 
 def loadPropertyFile():
     if os.path.isfile(PROP_FILE):
-        global DEFAULT_OPEN_PATH, DEFAULT_SAVETO_PATH
+        global DEFAULT_OPEN_PATH, DEFAULT_SAVETO_PATH, TRIBE_LIST_FILE
         propFile = open(PROP_FILE, 'r')
         propFile.readline() # [open]
         DEFAULT_OPEN_PATH = propFile.readline().strip('\n')
         propFile.readline() # [saveTo]
         DEFAULT_SAVETO_PATH = propFile.readline().strip('\n')
+        propFile.readline() # [tribalsFile]
+        tribalsFile = propFile.readline().strip('\n')
+        if tribalsFile:
+            TRIBE_LIST_FILE = tribalsFile
 
 def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if tribes:
@@ -328,16 +332,21 @@ def getInputs():
 
         openLabel = Label(preferencesWindow, text = "Default open path: ")
         openLabel.grid(row = 0, column = 0)
-        openEntry = Entry(preferencesWindow, width = 60)
+        openEntry = Entry(preferencesWindow, width = 80)
         openEntry.insert(0, DEFAULT_OPEN_PATH)
         openEntry.grid(row = 0, column = 1)
         saveToLabel = Label(preferencesWindow, text = "Default save path and name: ")
         saveToLabel.grid(row = 1, column = 0)
-        saveToEntry = Entry(preferencesWindow, width = 60)
+        saveToEntry = Entry(preferencesWindow, width = 80)
         saveToEntry.insert(0, DEFAULT_SAVETO_PATH)
         saveToEntry.grid(row = 1, column = 1)
+        tribalsListLabel = Label(preferencesWindow, text = "Tribe list spreadsheet: ")
+        tribalsListLabel.grid(row = 2, column = 0)
+        tribalsListEntry = Entry(preferencesWindow, width = 80)
+        tribalsListEntry.insert(0, TRIBE_LIST_FILE)
+        tribalsListEntry.grid(row = 2, column = 1)
         preferencesFrame = Frame(preferencesWindow)
-        preferencesFrame.grid(row = 2, column = 1, sticky = E)
+        preferencesFrame.grid(row = 3, column = 1, sticky = E)
         okButton = Button(preferencesFrame, text = "Ok", command = savePreferences)
         okButton.grid(row = 0, column = 0, sticky = E, padx = 10)
         cancelButtonWidget = Button(preferencesFrame, text = "Cancel", command = preferencesWindow.destroy, bg = "red")
