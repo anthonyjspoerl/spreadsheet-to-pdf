@@ -7,7 +7,7 @@ from tkinter import filedialog
 
 ABOUT_TEXT = 'Product developed by Anthony Spoerl and Zach Garlinghouse for GSS Inc.\n\nIf you have any questions or comments please contact anthonyjspoerl@gmail.com'
 
-APPLICATION_NAME = 'Spreadsheet Too PDF'
+APPLICATION_NAME = 'Spreadsheet To PDF'
 PROP_FILE = '.prop'
 TEMPLATE_PATH = os.getcwd() + '/templates/'
 HELP_PATH = os.getcwd() + '/help.html'
@@ -36,6 +36,12 @@ DATE_COLUMN = 6
 DESCRIPION_COLUMN = 7
 TCNS_COLUMN = 8
 FEE_COLUMN = 9
+JOB_COLUMN_DELIMETER = 'Job ID'
+DATE_COLUMN_DELIMETER = 'Trx Date'
+DESCRIPION_COLUMN_DELIMETER = 'Trans Description'
+TCNS_COLUMN_DELIMETER = 'Trans Ref'
+FEE_COLUMN_DELIMETER = 'Amount'
+
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
@@ -105,7 +111,7 @@ def loadPropertyFile():
         DEFAULT_SAVETO_PATH = propFile.readline().strip('\n')
         propFile.readline() # [tribalsFile]
         tribalsFile = propFile.readline().strip('\n')
-        if tribalsFile:
+        if os.path.isfile(tribalsFile):
             TRIBE_LIST_FILE = tribalsFile
 
 def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
@@ -180,8 +186,17 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
         multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
 
 
+def findColumnHeaderIndices(spreadsheet):
+    JOB_COLUMN = spreadsheet.Cells.Find(JOB_COLUMN_DELIMETER).Column
+    DATE_COLUMN = spreadsheet.Cells.Find(DATE_COLUMN_DELIMETER).Column
+    DESCRIPION_COLUMN = spreadsheet.Cells.Find(DESCRIPION_COLUMN_DELIMETER).Column
+    TCNS_COLUMN = spreadsheet.Cells.Find(TCNS_COLUMN_DELIMETER).Column
+    FEE_COLUMN = spreadsheet.Cells.Find(FEE_COLUMN_DELIMETER).Column
+
+
 def getDescriptionsInSpreadsheet(spreadsheet):
     global tcnsNumberSet
+    findColumnHeaderIndices(spreadsheet)
     index = 2
     emergencyExitCounter = 0
     delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
