@@ -39,6 +39,7 @@ FEE_COLUMN = 9
 SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
+MAPPING_LIST = ['ar', 'bm']
 DEFAULT_OPEN_PATH = ''
 DEFAULT_SAVETO_PATH = ''
 tcnsNumberSet = set()
@@ -190,11 +191,11 @@ def getDescriptionsInSpreadsheet(spreadsheet):
     while delimeter != SAGE_END_DELIMETER and emergencyExitCounter < EMERGENCY_EXIT_THRESHOLD:
         if description:
             date = spreadsheet.Cells(index, DATE_COLUMN).Value
-            fee = spreadsheet.Cells(index, FEE_COLUMN).Value # Only used for tribe, bother checkin for None?
+            fee = spreadsheet.Cells(index, FEE_COLUMN).Value # Only used for tribe, bother checking for None?
             descriptions.append( (date, description, fee) )
         index += 1
         description = spreadsheet.Cells(index,DESCRIPION_COLUMN).Value
-        
+
         delimeter = spreadsheet.Cells(index,JOB_COLUMN).Value
         if delimeter == None:
             emergencyExitCounter += 1
@@ -232,6 +233,8 @@ def insertTribalFees(tribes):
 
     tribeCount = 0
     total = 0
+    print('inserting tribes:')
+    print(tribes)
     for tribe in tribes:
         if tribe in TRIBAL_FEE_DICTIONARY:
             tribeName = TRIBAL_FEE_DICTIONARY[tribe]
@@ -248,6 +251,16 @@ def insertTribalFees(tribes):
     findAndReplace('_total_',"{:,.2f}".format(total))
 
 def filterMappings(descriptions):
+    mappingsFee = 0
+    for index in range(0, len(descriptions)):
+        print(descriptions[index][TRIBE_TUPLE])
+        for identifier in MAPPING_LIST:
+            print(descriptions[index][TRIBE_TUPLE].find('Item: ' + identifier) != -1)
+            if descriptions[index][TRIBE_TUPLE].find('Item: ' + identifier) != -1:
+                mappingsFee += descriptions[index][FEE_TUPLE]
+                break
+
+    print('mapping fee: ' + str(mappingsFee))
     return {}
 
 def multipleFindAndReplace(placeholder, itemSet):
@@ -453,3 +466,5 @@ if __name__ == "__main__":
 
 #Sante Sioux: markup %15 of cost
 #Ponca Tribe: PTC vs Non PTC (special case) ## use PTC by default
+
+### Remove Enter to submit ###
