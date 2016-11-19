@@ -188,6 +188,7 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
 
 
 def findColumnHeaderIndices(spreadsheet):
+    global JOB_COLUMN, DATE_COLUMN, DESCRIPION_COLUMN, TCNS_COLUMN, FEE_COLUMN
     JOB_COLUMN = spreadsheet.Cells.Find(JOB_COLUMN_DELIMETER).Column
     DATE_COLUMN = spreadsheet.Cells.Find(DATE_COLUMN_DELIMETER).Column
     DESCRIPION_COLUMN = spreadsheet.Cells.Find(DESCRIPION_COLUMN_DELIMETER).Column
@@ -256,6 +257,8 @@ def insertTribalFees(tribes):
             fee = tribes[tribe][1]
 
             tribeCount += tribes[tribe][0]
+            print('Tribal fee:')
+            print(fee)
             total += fee
 
             findAndReplace('_tribe_', tribeName)
