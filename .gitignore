@@ -5,3 +5,4 @@ main.exe
 examples
 errors.log
 main.spec
+__pycache__/

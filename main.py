@@ -29,7 +29,7 @@ LIST_START_INDEX = 4
 LIST_END = 'END'
 SAGE_TRIBE_COLUMN = 1
 GSS_TRIBE_COLUMN = 2
-
+ 
 # Sage spreadsheet consts
 JOB_COLUMN = 1
 DATE_COLUMN = 6
@@ -136,9 +136,12 @@ def loadPropertyFile():
         if os.path.isfile(tribalsFile):
             TRIBE_LIST_FILE = tribalsFile
 
+def isTexasInvoiceNumber(invoiceNum):
+    return invoiceNum[0] == 'D' or invoiceNum[0] == 'd'
+
 def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if tribes:
-        openWordTemplate('Tribals.docx')
+        openWordTemplate('Tribals_TX.docx' if isTexasInvoiceNumber(invoiceNum) else 'Tribals.docx')
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
         insertTribalFees( tribes )
         saveName = savePath + ' Tribals'
@@ -147,9 +150,9 @@ def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, co
 
 def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if mappings:
-        openWordTemplate('Mapping.docx')
+        openWordTemplate('Mapping_TX.docx' if isTexasInvoiceNumber(invoiceNum) else 'Mapping.docx')
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
-        saveDoc('Mapping')
+        saveDoc(savePath + ' Mapping')
 
 def saveDoc(saveName):
     doc.SaveAs(saveName)
@@ -224,6 +227,7 @@ def replaceFieldSurveyEntryFields(fee, invoiceNum, subdivision, referenceNum, mp
 
 
 def findColumnHeaderIndices(spreadsheet):
+    global JOB_COLUMN, DATE_COLUMN, DESCRIPION_COLUMN, TCNS_COLUMN, FEE_COLUMN
     JOB_COLUMN = spreadsheet.Cells.Find(JOB_COLUMN_DELIMETER).Column
     DATE_COLUMN = spreadsheet.Cells.Find(DATE_COLUMN_DELIMETER).Column
     DESCRIPION_COLUMN = spreadsheet.Cells.Find(DESCRIPION_COLUMN_DELIMETER).Column
@@ -297,6 +301,8 @@ def insertTribalFees(tribes):
             fee = tribes[tribe][1]
 
             tribeCount += tribes[tribe][0]
+            print('Tribal fee:')
+            print(fee)
             total += fee
 
             findAndReplace('_tribe_', tribeName)
@@ -365,9 +371,12 @@ def getInputs():
     def submit(event = None):
         try:
             global savePath
-            savePath = os.path.abspath(saveFileEntry.get().replace("\\", "\\\\"))
-            excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
-            window.quit()
+            if invoiceEntry.get() == '':
+                messagebox.showinfo('Missing Invoice Number', 'Please provide an invoice number.')
+            else:
+                savePath = os.path.abspath(saveFileEntry.get().replace("\\", "\\\\"))
+                excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
+                window.quit()
         except:
             messagebox.showerror("Error", "An error has occured. For more information, see errors.log in your Sage to PDF folder.")
 
