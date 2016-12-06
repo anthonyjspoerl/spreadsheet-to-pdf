@@ -18,7 +18,10 @@ Source: "templates\Tribals.docx"; DestDir: "{app}\templates"; DestName: "Tribals
 Source: "templates\Mapping.docx"; DestDir: "{app}\templates"; DestName: "Mapping.docx"
 Source: "templates\Ethno.docx"; DestDir: "{app}\templates"; DestName: "Ethno.docx"
 Source: "templates\Field Survey.docx"; DestDir: "{app}\templates"; DestName: "Field Survey.docx"
-Source: "templates\TribeList.xlsx"; DestDir: "{app}\templates"; DestName: "TribeList.xlsx"
+Source: "templates\Tribals_TX.docx"; DestDir: "{app}\templates"; DestName: "Tribals.docx"
+Source: "templates\Mapping_TX.docx"; DestDir: "{app}\templates"; DestName: "Mapping.docx"
+Source: "templates\Ethno_TX.docx"; DestDir: "{app}\templates"; DestName: "Ethno.docx"
+Source: "templates\Field Survey_TX.docx"; DestDir: "{app}\templates"; DestName: "Field Survey.docx"
 Source: "help.html"; DestDir: "{app}"
 Source: "Readme.md"; DestDir: "{app}"; DestName: "Readme.txt"; Flags: isreadme
 Source: "default.prop"; DestDir: "{app}"; DestName: ".prop";

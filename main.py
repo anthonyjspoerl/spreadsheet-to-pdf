@@ -29,7 +29,7 @@ LIST_START_INDEX = 4
 LIST_END = 'END'
 SAGE_TRIBE_COLUMN = 1
 GSS_TRIBE_COLUMN = 2
-
+ 
 # Sage spreadsheet consts
 JOB_COLUMN = 1
 DATE_COLUMN = 6
@@ -115,9 +115,12 @@ def loadPropertyFile():
         if os.path.isfile(tribalsFile):
             TRIBE_LIST_FILE = tribalsFile
 
+def isTexasInvoiceNumber(invoiceNum):
+    return invoiceNum[0] == 'D' or invoiceNum[0] == 'd'
+
 def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if tribes:
-        openWordTemplate('Tribals.docx')
+        openWordTemplate('Tribals_TX.docx' if isTexasInvoiceNumber(invoiceNum) else 'Tribals.docx')
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
         insertTribalFees( tribes )
         saveName = savePath + ' Tribals'
@@ -126,7 +129,7 @@ def saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, co
 
 def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if mappings:
-        openWordTemplate('Mapping.docx')
+        openWordTemplate('Mapping_TX.docx' if isTexasInvoiceNumber(invoiceNum) else 'Mapping.docx')
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
         saveDoc('Mapping')
 
