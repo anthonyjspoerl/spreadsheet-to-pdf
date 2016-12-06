@@ -131,7 +131,7 @@ def saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location,
     if mappings:
         openWordTemplate('Mapping_TX.docx' if isTexasInvoiceNumber(invoiceNum) else 'Mapping.docx')
         replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumberSet)
-        saveDoc('Mapping')
+        saveDoc(savePath + ' Mapping')
 
 def saveDoc(saveName):
     doc.SaveAs(saveName)
@@ -330,9 +330,12 @@ def getInputs():
     def submit(event = None):
         try:
             global savePath
-            savePath = os.path.abspath(saveFileEntry.get().replace("\\", "\\\\"))
-            excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
-            window.quit()
+            if invoiceEntry.get() == '':
+                messagebox.showinfo('Missing Invoice Number', 'Please provide an invoice number.')
+            else:
+                savePath = os.path.abspath(saveFileEntry.get().replace("\\", "\\\\"))
+                excelToWord( fileEntry.get(), invoiceEntry.get(), subdivisionEntry.get(), referenceEntry.get(), mpEntry.get(), locationEntry.get(), countyEntry.get(), stateEntry.get() )
+                window.quit()
         except:
             messagebox.showerror("Error", "An error has occured. For more information, see errors.log in your Sage to PDF folder.")
 
