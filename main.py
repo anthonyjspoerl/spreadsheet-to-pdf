@@ -46,6 +46,7 @@ SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
 MAPPING_LIST = ['ar', 'bm']
+FIELD_SURVEY_IDENTIFIER = 'hpi'
 DEFAULT_OPEN_PATH = ''
 DEFAULT_SAVETO_PATH = ''
 tcnsNumberSet = set()
@@ -93,8 +94,28 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     descriptions = getDescriptionsInSpreadsheet(spreadsheet)
     tribes = filterTribes(descriptions)
     saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    mappings = filterMappings(descriptions)
-    saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+    fieldSurveyFee = filterFieldSurvey(descriptions)
+    saveFieldSurveyFee(fieldSurveyFee, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+    # mappings = filterMappings(descriptions)
+    # saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+
+def filterFieldSurvey(descriptions):
+    fieldSurveyFee = 0
+    for index in range(0, len(descriptions)):
+        print(descriptions[index][TRIBE_TUPLE])
+        if descriptions[index][TRIBE_TUPLE].find('Item: ' + FIELD_SURVEY_IDENTIFIER) != -1:
+            fieldSurveyFee += descriptions[index][FEE_TUPLE]
+            break
+
+    print('hpi fee: ' + str(fieldSurveyFee))
+    return fieldSurveyFee
+
+def saveFieldSurveyFee(fee, invoiceNum, subdivision, referenceNum, mps, location, county, state):
+    if fee:
+        openWordTemplate('Field Survey.docx')
+        replaceFieldSurveyEntryFields(fee, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+        saveName = savePath + ' Field Survey'
+        saveDoc(saveName)
 
 def setup():
     global word, excel
@@ -189,6 +210,21 @@ def replaceEntryFields(invoiceNum, subdivision, referenceNum, mps, location, cou
     if tcnsNumbers:
         multipleFindAndReplace('_trans_ref_num_', tcnsNumbers)
 
+def replaceFieldSurveyEntryFields(fee, invoiceNum, subdivision, referenceNum, mps, location, county, state, tcnsNumbers = None):
+    findAndReplace('_invoice_num_', invoiceNum)
+    findAndReplace('_subdivision_', subdivision)
+    findAndReplace('_reference_num_', referenceNum)
+    if mps:
+        findAndReplace('_mps_', mps)
+    else:
+        findAndReplace('_mps_', 'NA')
+    findAndReplace('_location_', location)
+    findAndReplace('_county_', county)
+    findAndReplace('_state_', state)
+    multipleFindAndReplace('_dates_paid_', dates)
+    findAndReplace('_fee_', fee)
+    findAndReplace('_total_', fee + 800.00)
+
 
 def findColumnHeaderIndices(spreadsheet):
     global JOB_COLUMN, DATE_COLUMN, DESCRIPION_COLUMN, TCNS_COLUMN, FEE_COLUMN
@@ -233,6 +269,7 @@ def getDescriptionsInSpreadsheet(spreadsheet):
 def filterTribes(descriptions):
     global dates
     tribes = {}
+    unmatchedTribes = []
     for index in range(0, len(descriptions)):
         tribe = descriptions[index][TRIBE_TUPLE].split('- Item:')[0].strip()
         if tribe in TRIBAL_FEE_DICTIONARY:
@@ -245,6 +282,10 @@ def filterTribes(descriptions):
                 tribes[tribe].append(1) # index 0
                 tribes[tribe].append(fee) # index 1
             dates.add( descriptions[index][DATE_TUPLE].strftime(DATETIME_FORMAT) )
+        else:
+            unmatchedTribes.append(tribe)
+    print('These tribes were not found in the tribal list')
+    print(unmatchedTribes)
     return tribes
 
 def insertTribalFees(tribes):

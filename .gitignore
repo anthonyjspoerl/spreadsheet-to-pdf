@@ -1,6 +1,8 @@
-__pycache__/
-build/
-dist/
+test
+build
+dist
+main.exe
+examples
 errors.log
-examples/
 main.spec
+__pycache__/
