@@ -46,7 +46,8 @@ SAGE_END_DELIMETER = 'Report'
 
 TRIBAL_FEE_DICTIONARY = {}
 MAPPING_LIST = ['ar', 'bm']
-FIELD_SURVEY_IDENTIFIER = 'hpi'
+FIELD_SURVEY_HPI_IDENTIFIER = 'hpi'
+RECORD_SEARCH_FEE_IDENTIFIER = 'rsf'
 DEFAULT_OPEN_PATH = ''
 DEFAULT_SAVETO_PATH = ''
 tcnsNumberSet = set()
@@ -94,21 +95,25 @@ def excelToWord(spreadsheetName, invoiceNum, subdivision, referenceNum, mps, loc
     descriptions = getDescriptionsInSpreadsheet(spreadsheet)
     tribes = filterTribes(descriptions)
     saveTribals(tribes, invoiceNum, subdivision, referenceNum, mps, location, county, state)
-    fieldSurveyFee = filterFieldSurvey(descriptions)
-    saveFieldSurveyFee(fieldSurveyFee, invoiceNum, subdivision, referenceNum, mps, location, county, state)
+    fieldSurveyFees = filterFieldSurvey(descriptions)
+    saveFieldSurveyFee(fieldSurveyFees, invoiceNum, subdivision, referenceNum, mps, location, county, state)
     # mappings = filterMappings(descriptions)
     # saveMappings(mappings, invoiceNum, subdivision, referenceNum, mps, location, county, state)
 
 def filterFieldSurvey(descriptions):
-    fieldSurveyFee = 0
+    fieldSurveyFees = []
+    fieldSurveyFees.append(0) # fee
+    fieldSurveyFees.append(0) # admin fee
     for index in range(0, len(descriptions)):
-        print(descriptions[index][TRIBE_TUPLE])
-        if descriptions[index][TRIBE_TUPLE].find('Item: ' + FIELD_SURVEY_IDENTIFIER) != -1:
-            fieldSurveyFee += descriptions[index][FEE_TUPLE]
-            break
+        description = descriptions[index][TRIBE_TUPLE]
+        if description.find('Item: ' + FIELD_SURVEY_HPI_IDENTIFIER) != -1:
+            fieldSurveyFees[0] += float(descriptions[index][FEE_TUPLE])
+            fieldSurveyFees[1] += 800.0
+        elif description.find('Item: ' + RECORD_SEARCH_FEE_IDENTIFIER) != -1:
+            fieldSurveyFees[0] += float(descriptions[index][FEE_TUPLE])
+            fieldSurveyFees[1] += float(descriptions[index][FEE_TUPLE]) * 0.5
 
-    print('hpi fee: ' + str(fieldSurveyFee))
-    return fieldSurveyFee
+    return fieldSurveyFees
 
 def saveFieldSurveyFee(fee, invoiceNum, subdivision, referenceNum, mps, location, county, state):
     if fee:
@@ -222,8 +227,9 @@ def replaceFieldSurveyEntryFields(fee, invoiceNum, subdivision, referenceNum, mp
     findAndReplace('_county_', county)
     findAndReplace('_state_', state)
     multipleFindAndReplace('_dates_paid_', dates)
-    findAndReplace('_fee_', fee)
-    findAndReplace('_total_', fee + 800.00)
+    findAndReplace('_fee_', fee[0])
+    findAndReplace('_admin_fee_', fee[1])
+    findAndReplace('_total_', fee[0] + fee[1])
 
 
 def findColumnHeaderIndices(spreadsheet):

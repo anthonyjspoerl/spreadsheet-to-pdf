@@ -18,10 +18,10 @@ Source: "templates\Tribals.docx"; DestDir: "{app}\templates"; DestName: "Tribals
 Source: "templates\Mapping.docx"; DestDir: "{app}\templates"; DestName: "Mapping.docx"
 Source: "templates\Ethno.docx"; DestDir: "{app}\templates"; DestName: "Ethno.docx"
 Source: "templates\Field Survey.docx"; DestDir: "{app}\templates"; DestName: "Field Survey.docx"
-Source: "templates\Tribals_TX.docx"; DestDir: "{app}\templates"; DestName: "Tribals.docx"
-Source: "templates\Mapping_TX.docx"; DestDir: "{app}\templates"; DestName: "Mapping.docx"
-Source: "templates\Ethno_TX.docx"; DestDir: "{app}\templates"; DestName: "Ethno.docx"
-Source: "templates\Field Survey_TX.docx"; DestDir: "{app}\templates"; DestName: "Field Survey.docx"
+Source: "templates\Tribals_TX.docx"; DestDir: "{app}\templates"; DestName: "Tribals_TX.docx"
+Source: "templates\Mapping_TX.docx"; DestDir: "{app}\templates"; DestName: "Mapping_TX.docx"
+Source: "templates\Ethno_TX.docx"; DestDir: "{app}\templates"; DestName: "Ethno_TX.docx"
+Source: "templates\Field Survey_TX.docx"; DestDir: "{app}\templates"; DestName: "Field Survey_TX.docx"
 Source: "help.html"; DestDir: "{app}"
 Source: "Readme.md"; DestDir: "{app}"; DestName: "Readme.txt"; Flags: isreadme
 Source: "default.prop"; DestDir: "{app}"; DestName: ".prop";
